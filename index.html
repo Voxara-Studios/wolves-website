@@ -3,302 +3,287 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Wolves of Mayhem MC — Members Portal" />
+  <meta name="description" content="Wolves of Mayhem MC — Los Santos, San Andreas" />
   <title>Wolves of Mayhem MC</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@300;400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════════════
-     LANDING PAGE
-     ══════════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════
+     PAGE: LANDING
+     ══════════════════════════════════════════ -->
 <div class="page active" id="page-landing">
 
-  <nav>
-    <div class="nav-logo" onclick="showPage('page-landing')" role="button" tabindex="0" data-club-name>
-      Wolves <span>of Mayhem</span>
+  <!-- Sticky Nav -->
+  <nav class="site-nav">
+    <div class="nav-brand" onclick="showPage('page-landing')" role="button" tabindex="0">
+      <div style="width:32px;height:32px;" data-logo-slot="small"></div>
+      <span class="nav-brand-name">Wolves <em>of Mayhem</em></span>
     </div>
-    <ul>
-      <li><a onclick="scrollToSection('about')">About</a></li>
-      <li><a onclick="scrollToSection('portal')">Portal</a></li>
+    <ul class="nav-links">
+      <li><a onclick="scrollToAbout()">About</a></li>
+      <li><a onclick="showPage('page-portal')">Member Portal</a></li>
     </ul>
-    <button class="btn btn-nav" onclick="showPage('page-login')">Member Login</button>
+    <button class="nav-login-btn" onclick="showPage('page-portal')">Member Login</button>
   </nav>
 
-  <!-- HERO -->
+  <!-- Hero -->
   <section class="hero">
     <div class="hero-bg"></div>
+    <div class="hero-content">
 
-    <div class="hero-patch animate-1" data-logo>
-      <!-- Filled by renderLanding() -->
+      <div class="hero-logo-wrap a1" data-logo-slot="hero"></div>
+
+      <p class="hero-rocker a2">1% MC — San Andreas</p>
+
+      <h1 class="hero-title a3">
+        Wolves<br>
+        <span class="hero-title-red">of Mayhem</span>
+      </h1>
+
+      <div class="hero-divider a4"></div>
+
+      <div class="hero-meta a4">
+        <div class="hero-meta-item">
+          <span class="hero-meta-label">Founded</span>
+          <span class="hero-meta-value" data-founded>2022</span>
+        </div>
+        <div class="hero-meta-sep"></div>
+        <div class="hero-meta-item">
+          <span class="hero-meta-label">Location</span>
+          <span class="hero-meta-value" data-location>Los Santos, San Andreas</span>
+        </div>
+        <div class="hero-meta-sep"></div>
+        <div class="hero-meta-item">
+          <span class="hero-meta-label">Chapter</span>
+          <span class="hero-meta-value">Main</span>
+        </div>
+      </div>
+
+      <div class="hero-btns a5">
+        <button class="btn-hero-primary" onclick="showPage('page-portal')">Member Login</button>
+        <button class="btn-hero-ghost"   onclick="scrollToAbout()">About the Club</button>
+      </div>
+
     </div>
-
-    <p class="hero-eyebrow animate-2">Est. Members Only</p>
-
-    <h1 class="hero-title animate-3">
-      Wolves<br>
-      <span class="accent">of Mayhem</span>
-    </h1>
-
-    <div class="hero-divider animate-4"></div>
-
-    <p class="hero-sub animate-4" data-club-motto>
-      Born to Ride. Built to Last.
-    </p>
-
-    <div class="hero-cta animate-5">
-      <button class="btn btn-primary" onclick="showPage('page-login')">Enter the Portal</button>
-      <button class="btn btn-ghost"   onclick="scrollToSection('about')">About the Club</button>
-    </div>
-
-    <div id="social-links" style="display:none;position:relative;z-index:2;margin-top:1rem;"></div>
   </section>
 
-  <!-- STATS BAR -->
-  <div id="stats-bar" class="stats-bar">
-    <!-- Filled by renderLanding() -->
-  </div>
-
-  <!-- ABOUT -->
-  <section class="section" id="about">
-    <p class="section-tag">The Club</p>
-    <h2 class="section-title">Born to Ride.<br>Built to Last.</h2>
-    <p class="section-body">
-      The Wolves of Mayhem is a brotherhood of riders bound by loyalty, respect, and the open road.
-      This members portal is your private hub — manage the roster, track club finances, log inventory,
-      and stay connected with your brothers.
-    </p>
-
-    <div class="features-grid" id="portal">
-      <div class="feature-card">
-        <svg class="feature-icon" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-          <circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-        </svg>
-        <div class="feature-title">Roster</div>
-        <div class="feature-desc">Full member directory. Track roles, ranks, contact info, and membership status.</div>
+  <!-- About Section -->
+  <section class="about-section" id="about-section">
+    <div class="about-inner">
+      <div class="about-img-wrap">
+        <img src="assets/wolf.jpg" alt="Wolves of Mayhem" class="about-img" />
       </div>
-      <div class="feature-card">
-        <svg class="feature-icon" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <line x1="12" y1="1" x2="12" y2="23"/>
-          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-        </svg>
-        <div class="feature-title">Finances</div>
-        <div class="feature-desc">Club treasury tracking, dues collection, event expenses, and financial reports.</div>
-      </div>
-      <div class="feature-card">
-        <svg class="feature-icon" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-        </svg>
-        <div class="feature-title">Inventory</div>
-        <div class="feature-desc">Club gear, merchandise, equipment — logged, tracked, and accounted for.</div>
-      </div>
-      <div class="feature-card">
-        <svg class="feature-icon" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-        <div class="feature-title">Events</div>
-        <div class="feature-desc">Rides, meetings, rallies — club calendar with RSVPs and announcements.</div>
+      <div class="about-text-col">
+        <p class="about-tag">Who We Are</p>
+        <h2 class="about-title" data-name>Wolves of Mayhem</h2>
+        <p class="about-motto" data-motto>Loyalty. Brotherhood. Mayhem.</p>
+        <p class="about-text" data-about>
+          The Wolves of Mayhem MC is a 1% outlaw motorcycle club based in Los Santos, San Andreas.
+          Founded on the principles of brotherhood, loyalty, and riding free — we live by our own code.
+          We are not a club you join. We are a family you earn.
+        </p>
       </div>
     </div>
   </section>
 
-  <footer>
-    <div class="footer-logo" data-club-name>Wolves <span>of Mayhem</span></div>
-    <div class="footer-copy">Members only. All access restricted.</div>
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-brand">Wolves <em>of Mayhem</em> MC</div>
+    <div class="footer-copy">Los Santos, San Andreas &mdash; Members Only Portal</div>
   </footer>
 
 </div><!-- /page-landing -->
 
 
-<!-- ══════════════════════════════════════════════════════
-     LOGIN PAGE
-     ══════════════════════════════════════════════════════ -->
-<div class="page" id="page-login">
-  <div class="login-page">
-    <div class="login-bg"></div>
-    <div class="login-card animate-1">
+<!-- ══════════════════════════════════════════
+     PAGE: PORTAL LOGIN
+     ══════════════════════════════════════════ -->
+<div class="page" id="page-portal">
+  <div class="portal-page">
+    <div class="portal-bg"></div>
+    <div class="portal-card a1">
 
-      <div class="login-logo">
-        <div data-logo style="width:70px;height:70px;display:block;margin:0 auto 0.75rem;"></div>
-        <div class="login-logo-title" data-club-name>
-          Wolves <span>of Mayhem</span>
-        </div>
-        <div class="login-eyebrow">Member Portal</div>
+      <div class="portal-logo">
+        <div data-logo-slot="small" style="width:64px;height:64px;margin:0 auto .8rem;"></div>
+        <div class="portal-logo-name">Wolves <em>of Mayhem</em></div>
+        <div class="portal-logo-sub">Member Portal</div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label" for="username">Username</label>
-        <input class="form-input" type="text"     id="username" placeholder="Enter your username" autocomplete="username" autocapitalize="none" spellcheck="false" />
+      <div class="login-field">
+        <label class="login-label" for="login-user">Username</label>
+        <input class="login-input" type="text" id="login-user"
+               placeholder="Enter username" autocomplete="username"
+               autocapitalize="none" spellcheck="false" />
       </div>
-      <div class="form-group">
-        <label class="form-label" for="password">Password</label>
-        <input class="form-input" type="password" id="password" placeholder="Enter your password" autocomplete="current-password" />
+      <div class="login-field">
+        <label class="login-label" for="login-pass">Password</label>
+        <input class="login-input" type="password" id="login-pass"
+               placeholder="Enter password" autocomplete="current-password" />
       </div>
 
-      <button class="btn-login" onclick="handleLogin()">Enter the Clubhouse</button>
-      <div class="login-error" id="login-error" role="alert">Invalid credentials. Ride denied.</div>
+      <button class="login-submit" onclick="handleLogin()">Enter the Clubhouse</button>
+      <div class="login-err" id="login-err" role="alert">Invalid credentials. Ride denied.</div>
       <button class="login-back" onclick="showPage('page-landing')">&#8592; Back to main page</button>
+
     </div>
   </div>
-</div><!-- /page-login -->
+</div><!-- /page-portal -->
 
 
-<!-- ══════════════════════════════════════════════════════
-     DASHBOARD
-     ══════════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════
+     PAGE: DASHBOARD  (admin only)
+     ══════════════════════════════════════════ -->
 <div class="page" id="page-dashboard">
-  <div class="dashboard-header">
-    <div class="dash-logo">Wolves <span>of Mayhem</span></div>
-    <div class="dash-user">
-      <div class="dash-welcome">Welcome back, <strong id="dash-username">—</strong></div>
-      <button class="btn-logout" onclick="handleLogout()">Logout</button>
+  <div class="inner-header">
+    <div class="inner-logo">Wolves <em>of Mayhem</em></div>
+    <div class="inner-nav">
+      <span style="font-family:'Oswald',sans-serif;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);">
+        Welcome, <strong id="dash-name" style="color:var(--red);"></strong>
+      </span>
+      <button class="btn-logout-sm" onclick="handleLogout()">Logout</button>
     </div>
   </div>
-  <div class="dash-content">
-    <div class="dash-greeting">
-      <div class="dash-greeting-tag">Member Portal</div>
-      <div class="dash-greeting-title">Clubhouse</div>
-      <div class="dash-role-badge" id="dash-role">—</div>
-    </div>
-    <div class="dash-modules" id="dash-modules"></div>
+  <div class="inner-content">
+    <p class="page-tag">Admin Portal</p>
+    <h1 class="page-title">Dashboard</h1>
+    <div class="dash-tiles" id="dash-grid"></div>
   </div>
-</div><!-- /page-dashboard -->
+</div>
 
 
-<!-- ══════════════════════════════════════════════════════
-     MODULE: ROSTER
-     ══════════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════
+     PAGE: ROSTER
+     ══════════════════════════════════════════ -->
 <div class="page" id="page-roster">
-  <div class="dashboard-header">
-    <div class="dash-logo">Wolves <span>of Mayhem</span></div>
-    <div class="dash-user">
-      <button class="btn-logout" onclick="showPage('page-dashboard')">&#8592; Back</button>
-      <button class="btn-logout" onclick="handleLogout()">Logout</button>
+  <div class="inner-header">
+    <div class="inner-logo">Wolves <em>of Mayhem</em></div>
+    <div class="inner-nav">
+      <button class="btn-back" id="roster-back-btn" onclick="rosterBack()">&#8592; Back</button>
+      <button class="btn-logout-sm" onclick="handleLogout()">Logout</button>
     </div>
   </div>
-  <div class="module-page-content">
-    <div class="module-header">
-      <div class="module-header-tag">Members</div>
-      <div class="module-header-title">Roster</div>
+  <div class="inner-content">
+    <p class="page-tag">Club</p>
+    <h1 class="page-title">Roster</h1>
+
+    <div class="roster-meta">
+      <div class="roster-count-badge">Members: <span id="roster-count">0</span></div>
     </div>
-    <div class="placeholder-msg">Roster module coming soon.<br>Full member directory, ranks, and contact info will live here.</div>
+
+    <div class="table-wrap">
+      <table class="roster-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Name</th>
+            <th>Discord</th>
+            <th>Discord ID</th>
+            <th>CID</th>
+            <th>Join Date</th>
+            <th>Time in Club</th>
+          </tr>
+        </thead>
+        <tbody id="roster-tbody">
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════════════════════
-     MODULE: FINANCES
-     ══════════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════
+     PAGE: FINANCES  (placeholder)
+     ══════════════════════════════════════════ -->
 <div class="page" id="page-finances">
-  <div class="dashboard-header">
-    <div class="dash-logo">Wolves <span>of Mayhem</span></div>
-    <div class="dash-user">
-      <button class="btn-logout" onclick="showPage('page-dashboard')">&#8592; Back</button>
-      <button class="btn-logout" onclick="handleLogout()">Logout</button>
+  <div class="inner-header">
+    <div class="inner-logo">Wolves <em>of Mayhem</em></div>
+    <div class="inner-nav">
+      <button class="btn-back" onclick="showPage('page-dashboard')">&#8592; Back</button>
+      <button class="btn-logout-sm" onclick="handleLogout()">Logout</button>
     </div>
   </div>
-  <div class="module-page-content">
-    <div class="module-header">
-      <div class="module-header-tag">Treasury</div>
-      <div class="module-header-title">Finances</div>
-    </div>
-    <div class="placeholder-msg">Finances module coming soon.<br>Dues, expenses, and club treasury tracking will live here.</div>
+  <div class="inner-content">
+    <p class="page-tag">Treasury</p>
+    <h1 class="page-title">Finances</h1>
+    <div class="placeholder-box">Finances module coming soon.<br>Club treasury, dues tracking, and expenses will live here.</div>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════════════════════
-     MODULE: INVENTORY
-     ══════════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════
+     PAGE: INVENTORY  (placeholder)
+     ══════════════════════════════════════════ -->
 <div class="page" id="page-inventory">
-  <div class="dashboard-header">
-    <div class="dash-logo">Wolves <span>of Mayhem</span></div>
-    <div class="dash-user">
-      <button class="btn-logout" onclick="showPage('page-dashboard')">&#8592; Back</button>
-      <button class="btn-logout" onclick="handleLogout()">Logout</button>
+  <div class="inner-header">
+    <div class="inner-logo">Wolves <em>of Mayhem</em></div>
+    <div class="inner-nav">
+      <button class="btn-back" onclick="showPage('page-dashboard')">&#8592; Back</button>
+      <button class="btn-logout-sm" onclick="handleLogout()">Logout</button>
     </div>
   </div>
-  <div class="module-page-content">
-    <div class="module-header">
-      <div class="module-header-tag">Gear & Merch</div>
-      <div class="module-header-title">Inventory</div>
-    </div>
-    <div class="placeholder-msg">Inventory module coming soon.<br>Gear, merchandise, and equipment logging will live here.</div>
+  <div class="inner-content">
+    <p class="page-tag">Gear &amp; Merch</p>
+    <h1 class="page-title">Inventory</h1>
+    <div class="placeholder-box">Inventory module coming soon.<br>Gear, merchandise, and equipment tracking will live here.</div>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════════════════════
-     MODULE: EVENTS
-     ══════════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════
+     PAGE: EVENTS  (placeholder)
+     ══════════════════════════════════════════ -->
 <div class="page" id="page-events">
-  <div class="dashboard-header">
-    <div class="dash-logo">Wolves <span>of Mayhem</span></div>
-    <div class="dash-user">
-      <button class="btn-logout" onclick="showPage('page-dashboard')">&#8592; Back</button>
-      <button class="btn-logout" onclick="handleLogout()">Logout</button>
+  <div class="inner-header">
+    <div class="inner-logo">Wolves <em>of Mayhem</em></div>
+    <div class="inner-nav">
+      <button class="btn-back" onclick="showPage('page-dashboard')">&#8592; Back</button>
+      <button class="btn-logout-sm" onclick="handleLogout()">Logout</button>
     </div>
   </div>
-  <div class="module-page-content">
-    <div class="module-header">
-      <div class="module-header-tag">Calendar</div>
-      <div class="module-header-title">Events</div>
-    </div>
-    <div class="placeholder-msg">Events module coming soon.<br>Rides, rallies, and meetings will be managed here.</div>
+  <div class="inner-content">
+    <p class="page-tag">Calendar</p>
+    <h1 class="page-title">Events</h1>
+    <div class="placeholder-box">Events module coming soon.<br>Rides, rallies, and meetings will be managed here.</div>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════════════════════
-     CONFIG / SETTINGS PAGE  (admin only)
-     ══════════════════════════════════════════════════════ -->
-<div class="page" id="page-config">
-  <div class="dashboard-header">
-    <div class="dash-logo">Wolves <span>of Mayhem</span></div>
-    <div class="dash-user">
-      <button class="btn-logout" onclick="showPage('page-dashboard')">&#8592; Dashboard</button>
-      <button class="btn-logout" onclick="handleLogout()">Logout</button>
+<!-- ══════════════════════════════════════════
+     PAGE: SETTINGS  (admin only)
+     ══════════════════════════════════════════ -->
+<div class="page" id="page-settings">
+  <div class="inner-header">
+    <div class="inner-logo">Wolves <em>of Mayhem</em></div>
+    <div class="inner-nav">
+      <button class="btn-back" onclick="showPage('page-dashboard')">&#8592; Dashboard</button>
+      <button class="btn-logout-sm" onclick="handleLogout()">Logout</button>
     </div>
   </div>
-  <div class="module-page-content">
-    <div class="module-header">
-      <div class="module-header-tag">Admin</div>
-      <div class="module-header-title">Site Configuration</div>
-    </div>
-    <!-- Config panel is rendered here by config-panel.js -->
-    <div id="config-panel-body"></div>
+  <div class="inner-content">
+    <p class="page-tag">Admin</p>
+    <h1 class="page-title">Settings</h1>
+    <!-- Rendered by renderSettings() in app.js -->
+    <div id="settings-body" style="margin-top:2rem;"></div>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════════════════════
-     SCRIPTS  (order matters)
-     ══════════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════
+     SCRIPTS
+     ══════════════════════════════════════════ -->
 <script src="js/config.js"></script>
-<script src="js/config-panel.js"></script>
 <script src="js/app.js"></script>
 
-<!-- Render config panel when its page becomes visible -->
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    // Intercept showPage to render config panel on demand
-    const _origShow = showPage;
-    window.showPage = function(id) {
-      _origShow(id);
-      if (id === 'page-config') {
-        renderConfigPanel();
-      }
-    };
-  });
+  /* Roster back button — go to dashboard if admin, landing if member/view */
+  function rosterBack() {
+    if (currentUser?.access === 'admin') showPage('page-dashboard');
+    else handleLogout();
+  }
 </script>
 
 </body>

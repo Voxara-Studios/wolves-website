@@ -1,114 +1,96 @@
-# Wolves of Mayhem MC — Member Portal
-
-Private members portal for the Wolves of Mayhem MC.
+# Wolves of Mayhem MC — Member Portal v3
 
 ## File Structure
 
 ```
 wolves-of-mayhem/
-├── index.html              ← All pages live here (single-page app)
+├── index.html          ← All pages (single-page app)
 ├── css/
-│   └── style.css           ← All styles + CSS variables
+│   └── style.css       ← All styles
 ├── js/
-│   ├── config.js           ← Default config, ConfigManager, applyTheme()
-│   ├── config-panel.js     ← Admin config panel UI + logic
-│   └── app.js              ← Routing, auth, dashboard, landing render
+│   ├── config.js       ← Site config, defaults, ConfigManager, applyTheme
+│   └── app.js          ← Routing, auth, page rendering, settings logic
+├── assets/
+│   ├── patch.jpg       ← Full club patch logo
+│   └── wolf.jpg        ← Wolf head logo
 └── README.md
 ```
 
-## How the Config System Works
-
-All site settings live in `js/config.js` as `DEFAULT_CONFIG`.
-When an admin makes changes via the **Config panel** (login as `prez`), they are saved to `localStorage` and override the defaults — no server needed.
-
-Changes persist across sessions. Use **Factory Reset** in the Config panel to revert everything to defaults.
-
-## Demo Login Credentials
-
-| Username    | Password     | Role              | Access        |
-|-------------|--------------|-------------------|---------------|
-| `prez`      | `mayhem2024` | President         | Full (admin)  |
-| `vp`        | `chapter1`   | Vice President    | Full (admin)  |
-| `treasurer` | `ledger99`   | Treasurer         | Finances only |
-| `sergeant`  | `patch01`    | Sergeant at Arms  | Standard      |
-| `member`    | `wolf`       | Member            | Standard      |
-
-> ⚠️ Update credentials via the Config panel before sharing with members.
-
 ## Access Levels
 
-| Level      | Can access                                      |
-|------------|-------------------------------------------------|
-| `all`      | All modules including Config/Settings           |
-| `finances` | Roster, Finances, Events                        |
-| `standard` | Roster, Inventory, Events                       |
+| Level    | What they see                                         |
+|----------|-------------------------------------------------------|
+| `admin`  | Dashboard → all enabled modules + Settings            |
+| `member` | Roster only (no dashboard, no settings)               |
+| `view`   | Roster only, read-only (gangteam account)             |
 
-## Hosting on GitHub Pages — Step by Step
+## Default Credentials
 
-### 1. Create a GitHub account
-Go to https://github.com and sign up (free).
+| Username    | Password      | Access  | Notes                        |
+|-------------|---------------|---------|------------------------------|
+| `prez`      | `mayhem2024`  | admin   | Full access + settings       |
+| `vp`        | `chapter1`    | admin   | Full access + settings       |
+| `gangteam`  | `immense2025` | view    | Read-only, not on roster     |
 
-### 2. Create a new repository
-1. Click **+** → **New repository**
-2. Name: `wolves-of-mayhem` (or anything you like)
-3. Visibility: **Public** (required for free GitHub Pages)
-4. Click **Create repository**
+> Update all credentials via the **Settings → Members** tab after first login.
 
-### 3. Upload your files
-**Easiest method — GitHub web upload:**
-1. Unzip this project folder
-2. On your new repo page, click **"uploading an existing file"**
-3. Drag in the entire contents:
+## Adding More Logo Images
+
+1. Copy your image file into the `assets/` folder (e.g., `assets/mylogo.jpg`)
+2. Login as admin → Settings → Logo tab
+3. The active logo dropdown currently supports `patch` and `wolf`
+4. To add a new option, open `js/app.js`, find the `renderSettings()` function,
+   and add your filename to the `logoOpts` array
+
+## Hosting on GitHub Pages
+
+### Step 1 — Create GitHub account
+https://github.com → Sign up (free)
+
+### Step 2 — New repository
+- Click **+** → **New repository**
+- Name: `wolves-of-mayhem`
+- Visibility: **Public**
+- Click **Create repository**
+
+### Step 3 — Upload files
+1. Unzip the project folder
+2. On the new repo page → click **"uploading an existing file"**
+3. Drag ALL files and folders in:
    - `index.html`
-   - `css/` folder
-   - `js/` folder
+   - `css/` folder (with style.css)
+   - `js/` folder (with config.js and app.js)
+   - `assets/` folder (with patch.jpg and wolf.jpg)
    - `README.md`
-4. Add commit message: `Initial upload`
+4. Commit message: `Initial upload`
 5. Click **Commit changes**
 
-**Important:** Make sure the folder structure is preserved —
-`css/style.css` and `js/app.js` must be in their folders, not loose.
+**Important:** The folder structure must be preserved exactly as shown above.
 
-### 4. Enable GitHub Pages
-1. Go to your repo → **Settings** → **Pages** (left sidebar)
-2. Under **Source** → **Deploy from a branch**
+### Step 4 — Enable GitHub Pages
+1. Repo → **Settings** → **Pages** (left sidebar)
+2. Source: **Deploy from a branch**
 3. Branch: `main`, Folder: `/ (root)`
 4. Click **Save**
 
-### 5. Your site goes live
-After 1–2 minutes, your URL will be:
+### Step 5 — Live!
+After ~2 minutes your site is at:
 ```
 https://YOUR_USERNAME.github.io/wolves-of-mayhem/
 ```
-GitHub shows this URL on the Pages settings screen once it's ready.
 
----
+## Updating Credentials Later
 
-## Updating the Site Later
+After initial deployment, log in as an admin and use **Settings → Members** to
+add, edit, or remove members. Changes save to `localStorage` on that browser.
 
-After making code changes:
-1. Go to your GitHub repo
-2. Click on the file you want to update (e.g. `js/config.js`)
-3. Click the pencil ✏️ icon to edit
-4. Make your changes
-5. Click **Commit changes**
-
-The site auto-deploys within ~1 minute.
-
----
-
-## Custom Domain (Optional)
-
-1. Buy a domain (Namecheap, GoDaddy, Cloudflare, etc.)
-2. Repo → Settings → Pages → **Custom domain** → enter your domain
-3. Update your domain's DNS as GitHub instructs (A records or CNAME)
-
----
+> Note: Since this is a static site with no server, credentials are stored in
+> the browser's localStorage. For a shared admin computer this works great.
+> For production use across multiple devices, a backend database is recommended.
 
 ## Roadmap
 
-- [ ] Roster module — member directory with add/edit/remove
-- [ ] Finances module — dues ledger, expenses, balance
-- [ ] Inventory module — gear and merch with quantity tracking  
-- [ ] Events module — calendar with rides and meetings
-- [ ] Move credentials to a real backend (recommended for production)
+- [ ] Finances module
+- [ ] Inventory module  
+- [ ] Events / calendar module
+- [ ] Backend authentication (for multi-device credential sync)

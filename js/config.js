@@ -1,138 +1,94 @@
-/* ═══════════════════════════════════════════════════
-   WOLVES OF MAYHEM — Site Configuration
-   All site-wide settings live here.
-   Admins edit this via the Config panel (saved to
-   localStorage so changes persist across sessions).
-   ═══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   WOLVES OF MAYHEM — Site Config
+   ═══════════════════════════════════════════ */
 
 const DEFAULT_CONFIG = {
-
-  /* ── CLUB IDENTITY ── */
   club: {
-    name:    'Wolves of Mayhem',
-    nameShort: 'WOM',
-    motto:   'Ride with the pack. Unleash the chaos.',
-    founded: '2024',
-    chapter: 'Main Chapter',
-    logoUrl: '',          // base64 or URL; empty = use SVG patch
+    name:     'Wolves of Mayhem',
+    tag:      'MC',
+    motto:    'Loyalty. Brotherhood. Mayhem.',
+    founded:  '2022',
+    location: 'Los Santos, San Andreas',
+    about:    'The Wolves of Mayhem MC is a 1% outlaw motorcycle club based in Los Santos, San Andreas. Founded on the principles of brotherhood, loyalty, and riding free — we live by our own code. We are not a club you join. We are a family you earn.',
+    // Which logo to show on landing: 'patch' or 'wolf'
+    activeLogo: 'patch',
   },
-
-  /* ── THEME COLORS ── */
   colors: {
-    accent:     '#b20702',   // primary red
-    accentDark: '#8a0502',   // hover state
-    bgBlack:    '#0a0a0a',
-    bgDark:     '#111111',
-    bgCard:     '#161616',
-    bgCard2:    '#1c1c1c',
+    accent:        '#b20702',
+    accentDark:    '#8a0502',
+    bgBlack:       '#0a0a0a',
+    bgDark:        '#111111',
+    bgCard:        '#161616',
+    bgCard2:       '#1c1c1c',
     textPrimary:   '#e8e6e0',
     textSecondary: '#9a9590',
     textMuted:     '#5a5550',
   },
-
-  /* ── HERO STATS BAR ── */
-  stats: [
-    { num: '31',  label: 'Active Members' },
-    { num: '2',   label: 'Years Running'  },
-    { num: '1',   label: 'Chapter'        },
-    { num: '∞',   label: 'Brotherhood'    },
-  ],
-
-  /* ── SOCIAL / CONTACT ── */
-  social: {
-    facebook:  '',
-    instagram: '',
-    email:     '',
-    phone:     '',
-  },
-
-  /* ── MODULES ──
-     enabled: true/false controls whether the module
-     appears in the dashboard for users with access.
-     order: controls display order in the grid.        */
   modules: {
-    roster:    { label: 'Roster',    enabled: true,  order: 1, icon: 'icon-roster',    access: ['all','standard','finances'], page: 'page-roster',    desc: 'Member directory and ranks'    },
-    finances:  { label: 'Finances',  enabled: true,  order: 2, icon: 'icon-finances',  access: ['all','finances'],            page: 'page-finances',  desc: 'Club treasury & dues'          },
-    inventory: { label: 'Inventory', enabled: true,  order: 3, icon: 'icon-inventory', access: ['all','standard'],            page: 'page-inventory', desc: 'Gear, merch & equipment'       },
-    events:    { label: 'Events',    enabled: true,  order: 4, icon: 'icon-events',    access: ['all','standard','finances'], page: 'page-events',    desc: 'Rides, rallies & meetings'     },
-    settings:  { label: 'Config',    enabled: true,  order: 5, icon: 'icon-settings',  access: ['all'],                       page: 'page-config',    desc: 'Site settings & management'    },
+    roster:    { label: 'Roster',    enabled: true,  order: 1, access: ['admin','view','member'], page: 'page-roster'   },
+    finances:  { label: 'Finances',  enabled: true,  order: 2, access: ['admin'],                page: 'page-finances' },
+    inventory: { label: 'Inventory', enabled: true,  order: 3, access: ['admin','member'],        page: 'page-inventory'},
+    events:    { label: 'Events',    enabled: true,  order: 4, access: ['admin','view','member'], page: 'page-events'   },
+    settings:  { label: 'Settings',  enabled: true,  order: 5, access: ['admin'],                page: 'page-settings' },
   },
-
-  /* ── MEMBERS ──
-     Credentials managed via Config panel.
-     access levels: 'all' | 'finances' | 'standard'   */
+  /* Members — managed via settings panel.
+     access: 'admin' | 'member' | 'view'           */
   members: [
-    { username: 'prez',      password: 'mayhem2024', role: 'President',         name: 'Road King',   access: 'all'      },
-    { username: 'vp',        password: 'chapter1',   role: 'Vice President',    name: 'Iron Cross',  access: 'all'      },
-    { username: 'treasurer', password: 'ledger99',   role: 'Treasurer',         name: 'Cash Money',  access: 'finances' },
-    { username: 'sergeant',  password: 'patch01',    role: 'Sergeant at Arms',  name: 'Knuckles',    access: 'standard' },
-    { username: 'member',    password: 'wolf',       role: 'Member',            name: 'Prospect',    access: 'standard' },
+    { username: 'prez',      password: 'mayhem2024', name: 'Road King',  rank: 'President',        discord: '',  discordId: '', cid: '',  joined: '2022-01-01', access: 'admin'  },
+    { username: 'vp',        password: 'chapter1',   name: 'Iron Cross', rank: 'Vice President',   discord: '',  discordId: '', cid: '',  joined: '2022-01-01', access: 'admin'  },
+    { username: 'gangteam',  password: 'immense2025',name: 'Gang Team',  rank: 'Observer',         discord: '',  discordId: '', cid: '',  joined: '2025-01-01', access: 'view'   },
   ],
-
 };
 
-/* ═══════════════════════════════════════════════════
-   CONFIG MANAGER
-   Merges saved localStorage config over defaults.
-   ═══════════════════════════════════════════════════ */
+/* ── Config Manager ── */
 const ConfigManager = (() => {
-  const STORAGE_KEY = 'wom_config';
-
-  function deepMerge(target, source) {
-    const result = Object.assign({}, target);
-    for (const key in source) {
-      if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-        result[key] = deepMerge(target[key] || {}, source[key]);
-      } else {
-        result[key] = source[key];
-      }
+  const KEY = 'wom_cfg_v3';
+  function deepMerge(t, s) {
+    const r = Object.assign({}, t);
+    for (const k in s) {
+      if (s[k] && typeof s[k] === 'object' && !Array.isArray(s[k])) r[k] = deepMerge(t[k]||{}, s[k]);
+      else r[k] = s[k];
     }
-    return result;
+    return r;
   }
-
   function load() {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) return deepMerge(DEFAULT_CONFIG, JSON.parse(saved));
-    } catch (e) { /* fall through */ }
+    try { const s = localStorage.getItem(KEY); if (s) return deepMerge(DEFAULT_CONFIG, JSON.parse(s)); } catch(e){}
     return deepMerge({}, DEFAULT_CONFIG);
   }
-
-  function save(cfg) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg)); } catch (e) {}
-  }
-
-  function reset() {
-    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
-    return deepMerge({}, DEFAULT_CONFIG);
-  }
-
+  function save(cfg) { try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch(e){} }
+  function reset()   { try { localStorage.removeItem(KEY); } catch(e){} return deepMerge({}, DEFAULT_CONFIG); }
   return { load, save, reset };
 })();
 
-/* Live config instance — all code reads from this */
 let CFG = ConfigManager.load();
 
-/* Apply CSS variables from config colors */
-function applyTheme(colors) {
-  const r = document.documentElement.style;
-  r.setProperty('--club-red',        colors.accent);
-  r.setProperty('--club-red-dark',   colors.accentDark);
-  r.setProperty('--bg-black',        colors.bgBlack);
-  r.setProperty('--bg-dark',         colors.bgDark);
-  r.setProperty('--bg-card',         colors.bgCard);
-  r.setProperty('--bg-card2',        colors.bgCard2);
-  r.setProperty('--text-primary',    colors.textPrimary);
-  r.setProperty('--text-secondary',  colors.textSecondary);
-  r.setProperty('--text-muted',      colors.textMuted);
-  /* Derived */
-  const toRgba = (hex, a) => {
-    const r = parseInt(hex.slice(1,3),16);
-    const g = parseInt(hex.slice(3,5),16);
-    const b = parseInt(hex.slice(5,7),16);
-    return `rgba(${r},${g},${b},${a})`;
-  };
-  r.setProperty('--club-red-glow',   toRgba(colors.accent, 0.25));
-  r.setProperty('--club-red-faint',  toRgba(colors.accent, 0.12));
-  r.setProperty('--club-red-border', toRgba(colors.accent, 0.40));
+/* Apply CSS vars from color config */
+function applyTheme(c) {
+  const s = document.documentElement.style;
+  s.setProperty('--red',        c.accent);
+  s.setProperty('--red-dark',   c.accentDark);
+  s.setProperty('--bg0',        c.bgBlack);
+  s.setProperty('--bg1',        c.bgDark);
+  s.setProperty('--bg2',        c.bgCard);
+  s.setProperty('--bg3',        c.bgCard2);
+  s.setProperty('--t1',         c.textPrimary);
+  s.setProperty('--t2',         c.textSecondary);
+  s.setProperty('--t3',         c.textMuted);
+  const hex2rgba = (h,a) => { const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16); return `rgba(${r},${g},${b},${a})`; };
+  s.setProperty('--red-faint',  hex2rgba(c.accent, 0.12));
+  s.setProperty('--red-border', hex2rgba(c.accent, 0.40));
+}
+
+/* Time-in-club helper */
+function timeInClub(joinedStr) {
+  if (!joinedStr) return '—';
+  const joined = new Date(joinedStr);
+  const now = new Date();
+  let years  = now.getFullYear() - joined.getFullYear();
+  let months = now.getMonth()    - joined.getMonth();
+  if (months < 0) { years--; months += 12; }
+  if (years > 0)  return `${years}y ${months}m`;
+  if (months > 0) return `${months}m`;
+  const days = Math.floor((now - joined) / 86400000);
+  return `${days}d`;
 }

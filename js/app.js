@@ -1,215 +1,328 @@
-/* ═══════════════════════════════════════════════════
-   WOLVES OF MAYHEM — App Core
-   Handles routing, auth, and dashboard rendering.
-   ═══════════════════════════════════════════════════ */
-
+/* ═══════════════════════════════════════════
+   WOLVES OF MAYHEM — App JS
+   ═══════════════════════════════════════════ */
 'use strict';
 
-/* ─── SVG ICON LIBRARY ─── */
-const ICONS = {
-  'icon-roster': `<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
-  'icon-finances': `<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
-  'icon-inventory': `<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
-  'icon-events': `<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
-  'icon-settings': `<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
-  'icon-lock': `<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
-};
-
-/* ─── STATE ─── */
 let currentUser = null;
 
-/* ═══════════════════════════════════════════════════
-   PAGE ROUTER
-   ═══════════════════════════════════════════════════ */
+/* ── ROUTER ── */
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const target = document.getElementById(id);
-  if (target) {
-    target.classList.add('active');
-    window.scrollTo(0, 0);
-  }
+  const t = document.getElementById(id);
+  if (t) { t.classList.add('active'); window.scrollTo(0,0); }
+  /* Lazy-render pages on demand */
+  if (id === 'page-portal')   renderPortalLogin();
+  if (id === 'page-roster')   renderRoster();
+  if (id === 'page-settings') renderSettings();
 }
 
-/* ═══════════════════════════════════════════════════
-   LANDING PAGE — dynamic content
-   ═══════════════════════════════════════════════════ */
+function scrollToAbout() {
+  document.getElementById('about-section')?.scrollIntoView({ behavior:'smooth' });
+}
+
+/* ── LANDING ── */
 function renderLanding() {
-  const c = CFG;
+  /* Club info */
+  document.querySelectorAll('[data-name]').forEach(el => el.textContent = CFG.club.name);
+  document.querySelectorAll('[data-motto]').forEach(el => el.textContent = CFG.club.motto);
+  document.querySelectorAll('[data-location]').forEach(el => el.textContent = CFG.club.location);
+  document.querySelectorAll('[data-founded]').forEach(el => el.textContent = CFG.club.founded);
+  document.querySelectorAll('[data-about]').forEach(el => el.textContent = CFG.club.about);
 
-  /* Club name */
-  document.querySelectorAll('[data-club-name]').forEach(el => {
-    el.innerHTML = c.club.name.replace(' ', ' <span>') + '</span>';
-  });
-  document.querySelectorAll('[data-club-motto]').forEach(el => {
-    el.textContent = c.club.motto;
-  });
-
-  /* Logo */
-  refreshLogo();
-
-  /* Stats */
-  const statsBar = document.getElementById('stats-bar');
-  if (statsBar) {
-    statsBar.innerHTML = c.stats.map(s => `
-      <div class="stat-item">
-        <div class="stat-num">${s.num}</div>
-        <div class="stat-label">${s.label}</div>
-      </div>
-    `).join('');
-  }
-
-  /* Social links */
-  const socialBar = document.getElementById('social-links');
-  if (socialBar) {
-    const links = [];
-    if (c.social.facebook)  links.push(`<a href="${c.social.facebook}"  target="_blank" rel="noopener" class="social-link">Facebook</a>`);
-    if (c.social.instagram) links.push(`<a href="${c.social.instagram}" target="_blank" rel="noopener" class="social-link">Instagram</a>`);
-    if (c.social.email)     links.push(`<a href="mailto:${c.social.email}" class="social-link">Email</a>`);
-    if (c.social.phone)     links.push(`<a href="tel:${c.social.phone}" class="social-link">${c.social.phone}</a>`);
-    socialBar.innerHTML = links.join('');
-    socialBar.style.display = links.length ? 'flex' : 'none';
-  }
+  /* Logo selection */
+  renderLogos();
 }
 
-function refreshLogo() {
-  document.querySelectorAll('[data-logo]').forEach(el => {
-    if (CFG.club.logoUrl) {
-      el.innerHTML = `<img src="${CFG.club.logoUrl}" alt="${CFG.club.name} logo" style="width:100%;height:100%;object-fit:contain;border-radius:50%;" />`;
-    } else {
-      el.innerHTML = SVG_PATCH;
-    }
+function renderLogos() {
+  document.querySelectorAll('[data-logo-slot]').forEach(el => {
+    const which = el.dataset.logoSlot; // 'hero' or 'small'
+    const src = CFG.club.activeLogo === 'wolf' ? 'assets/wolf.jpg' : 'assets/patch.jpg';
+    const size = which === 'hero' ? '280px' : '48px';
+    const radius = which === 'hero' ? '12px' : '50%';
+    el.innerHTML = `<img src="${src}" alt="WOM Logo" style="width:${size};height:${size};object-fit:contain;border-radius:${radius};" />`;
   });
 }
 
-/* Inline SVG patch — used when no logo uploaded */
-const SVG_PATCH = `
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <polygon points="100,10 130,35 185,35 155,65 168,118 100,90 32,118 45,65 15,35 70,35"
-           fill="#1a0000" stroke="var(--club-red)" stroke-width="2.5"/>
-  <polygon points="100,22 124,42 171,42 147,66 158,112 100,87 42,112 53,66 29,42 76,42"
-           fill="none" stroke="var(--club-red)" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
-  <g fill="var(--club-red)" opacity="0.9">
-    <ellipse cx="100" cy="68" rx="22" ry="18"/>
-    <ellipse cx="100" cy="83" rx="14" ry="10"/>
-    <path d="M78,60 Q70,48 72,42 Q80,52 88,55Z"/>
-    <path d="M122,60 Q130,48 128,42 Q120,52 112,55Z"/>
-    <circle cx="92" cy="63" r="3" fill="#0a0000"/>
-    <circle cx="108" cy="63" r="3" fill="#0a0000"/>
-    <path d="M92,72 Q100,78 108,72" fill="none" stroke="#0a0000" stroke-width="1.5"/>
-  </g>
-  <text x="100" y="108" text-anchor="middle" font-family="'Black Ops One',serif" font-size="9" fill="var(--text-primary)" letter-spacing="2">WOLVES</text>
-  <text x="100" y="120" text-anchor="middle" font-family="'Black Ops One',serif" font-size="7" fill="var(--club-red)" letter-spacing="3">OF MAYHEM</text>
-  <path d="M60,128 Q100,138 140,128" fill="none" stroke="var(--club-red)" stroke-width="1" opacity="0.5"/>
-</svg>`;
-
-/* ═══════════════════════════════════════════════════
-   AUTH
-   ═══════════════════════════════════════════════════ */
+/* ── AUTH ── */
 function handleLogin() {
-  const uEl = document.getElementById('username');
-  const pEl = document.getElementById('password');
-  const errEl = document.getElementById('login-error');
-
-  const u = uEl.value.trim().toLowerCase();
-  const p = pEl.value;
+  const u   = document.getElementById('login-user')?.value.trim().toLowerCase();
+  const p   = document.getElementById('login-pass')?.value;
+  const err = document.getElementById('login-err');
 
   const member = CFG.members.find(m => m.username === u && m.password === p);
-
   if (!member) {
-    errEl.classList.add('show');
-    pEl.value = '';
-    pEl.focus();
+    err.classList.add('show');
+    document.getElementById('login-pass').value = '';
     return;
   }
-
-  errEl.classList.remove('show');
+  err.classList.remove('show');
   currentUser = member;
-  renderDashboard(member);
-  showPage('page-dashboard');
+
+  /* Route by access level */
+  if (member.access === 'admin') {
+    showPage('page-dashboard');
+    renderDashboard();
+  } else {
+    /* member or view — go straight to roster */
+    showPage('page-roster');
+  }
 }
 
 function handleLogout() {
   currentUser = null;
-  document.getElementById('username').value = '';
-  document.getElementById('password').value = '';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
   showPage('page-landing');
 }
 
-/* ═══════════════════════════════════════════════════
-   DASHBOARD
-   ═══════════════════════════════════════════════════ */
-function renderDashboard(member) {
-  const nameEl = document.getElementById('dash-username');
-  const roleEl = document.getElementById('dash-role');
-  if (nameEl) nameEl.textContent = member.name;
-  if (roleEl) roleEl.textContent = member.role;
+/* ── DASHBOARD (admin) ── */
+function renderDashboard() {
+  const el = document.getElementById('dash-name');
+  if (el) el.textContent = currentUser?.name || '—';
 
-  const grid = document.getElementById('dash-modules');
+  const grid = document.getElementById('dash-grid');
   if (!grid) return;
 
-  /* Sort modules by order, filter enabled */
   const mods = Object.entries(CFG.modules)
-    .map(([id, m]) => ({ id, ...m }))
-    .sort((a, b) => a.order - b.order);
+    .sort((a,b) => a[1].order - b[1].order)
+    .filter(([,m]) => m.enabled);
 
-  grid.innerHTML = mods.map(mod => {
-    /* Skip disabled modules entirely (unless admin viewing config) */
-    if (!mod.enabled && mod.id !== 'settings') return '';
+  const icons = {
+    roster:    `<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+    finances:  `<svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+    inventory: `<svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
+    events:    `<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+    settings:  `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+  };
 
-    const hasAccess = mod.access.includes(member.access);
-    const iconSvg   = ICONS[mod.icon] || ICONS['icon-settings'];
-    const lockIcon  = !hasAccess ? `<span class="module-lock">${ICONS['icon-lock']}</span>` : '';
-    const lockedCls = !hasAccess ? ' locked' : '';
-    const clickAttr = hasAccess
-      ? `onclick="showPage('${mod.page}')" role="button" tabindex="0"`
-      : `title="Access restricted — ${mod.access.join(', ')} only"`;
-
-    /* Badge for disabled modules (admin sees them greyed) */
-    const disabledBadge = !mod.enabled
-      ? `<span class="module-disabled-badge">Disabled</span>`
-      : '';
-
+  grid.innerHTML = mods.map(([id, m]) => {
+    const hasAccess = m.access.includes(currentUser.access);
     return `
-      <div class="dash-module${lockedCls}" ${clickAttr}>
-        <span class="module-icon">${iconSvg}</span>
-        <div class="module-name">${mod.label} ${disabledBadge}</div>
-        <div class="module-desc">${mod.desc}</div>
-        ${lockIcon}
+      <div class="dash-tile ${hasAccess ? '' : 'locked'}"
+           ${hasAccess ? `onclick="showPage('${m.page}')"` : 'title="Access restricted"'}>
+        <span class="tile-icon">${icons[id] || icons.settings}</span>
+        <span class="tile-label">${m.label}</span>
+        ${!hasAccess ? `<span class="tile-lock"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>` : ''}
       </div>`;
   }).join('');
 }
 
-/* ═══════════════════════════════════════════════════
-   SMOOTH SCROLL HELPER
-   ═══════════════════════════════════════════════════ */
-function scrollToSection(id) {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth' });
+/* ── PORTAL LOGIN PAGE ── */
+function renderPortalLogin() {
+  /* Just make sure the logo is fresh */
+  renderLogos();
 }
 
-/* ═══════════════════════════════════════════════════
-   KEYBOARD HANDLING
-   ═══════════════════════════════════════════════════ */
+/* ── ROSTER ── */
+function renderRoster() {
+  const isView = currentUser?.access === 'view';
+  const tbody  = document.getElementById('roster-tbody');
+  const count  = document.getElementById('roster-count');
+  if (!tbody) return;
+
+  /* Filter out view/gangteam from displayed roster */
+  const members = CFG.members.filter(m => m.access !== 'view');
+  if (count) count.textContent = members.length;
+
+  tbody.innerHTML = members.map((m, i) => {
+    const tic = timeInClub(m.joined);
+    const joinFmt = m.joined ? new Date(m.joined).toLocaleDateString('en-CA') : '—';
+    return `
+      <tr>
+        <td><span class="rank-badge">${esc(m.rank||'Member')}</span></td>
+        <td class="name-cell">${esc(m.name)}</td>
+        <td>${esc(m.discord||'—')}</td>
+        <td class="mono">${esc(m.discordId||'—')}</td>
+        <td class="mono">${esc(m.cid||'—')}</td>
+        <td>${joinFmt}</td>
+        <td class="tic">${tic}</td>
+      </tr>`;
+  }).join('');
+}
+
+/* ── SETTINGS ── */
+function renderSettings() {
+  const el = document.getElementById('settings-body');
+  if (!el) return;
+
+  const logoOpts = ['patch','wolf'].map(k =>
+    `<option value="${k}" ${CFG.club.activeLogo===k?'selected':''}>${k==='patch'?'Full Patch':'Wolf Head'}</option>`
+  ).join('');
+
+  el.innerHTML = `
+    <!-- TABS -->
+    <div class="stab-bar">
+      <button class="stab active" onclick="switchStab(this,'stab-club')">Club Info</button>
+      <button class="stab" onclick="switchStab(this,'stab-logo')">Logo</button>
+      <button class="stab" onclick="switchStab(this,'stab-modules')">Modules</button>
+      <button class="stab" onclick="switchStab(this,'stab-members')">Members</button>
+    </div>
+
+    <!-- CLUB INFO -->
+    <div class="stab-panel active" id="stab-club">
+      ${sRow('Club Name',    'si-name',     CFG.club.name)}
+      ${sRow('Motto',        'si-motto',    CFG.club.motto)}
+      ${sRow('Founded',      'si-founded',  CFG.club.founded)}
+      ${sRow('Location',     'si-location', CFG.club.location)}
+      <div class="s-row s-row--col">
+        <label class="s-label">About Blurb</label>
+        <textarea class="s-input s-textarea" id="si-about">${esc(CFG.club.about)}</textarea>
+      </div>
+    </div>
+
+    <!-- LOGO -->
+    <div class="stab-panel" id="stab-logo">
+      <p class="s-hint" style="margin-bottom:1.5rem;">Choose which uploaded image shows as the main logo.</p>
+      <div class="s-row">
+        <label class="s-label">Active Logo</label>
+        <select class="s-input s-select" id="si-logo-active">${logoOpts}</select>
+      </div>
+      <div class="logo-previews">
+        <div class="logo-preview-card">
+          <img src="assets/patch.jpg" alt="Full Patch" />
+          <span>patch.jpg — Full Patch</span>
+        </div>
+        <div class="logo-preview-card">
+          <img src="assets/wolf.jpg" alt="Wolf Head" />
+          <span>wolf.jpg — Wolf Head</span>
+        </div>
+      </div>
+      <p class="s-hint" style="margin-top:1rem;">To add more logos, upload image files to the <code>assets/</code> folder and update the config.</p>
+    </div>
+
+    <!-- MODULES -->
+    <div class="stab-panel" id="stab-modules">
+      <p class="s-hint" style="margin-bottom:1.5rem;">Toggle modules on/off. Disabled modules are hidden from all users.</p>
+      <div class="module-toggle-list">
+        ${Object.entries(CFG.modules).map(([id,m]) => `
+          <div class="mod-row">
+            <label class="s-toggle-wrap">
+              <input type="checkbox" class="s-toggle-input" id="mod-${id}" ${m.enabled?'checked':''} />
+              <span class="s-toggle-track"><span class="s-toggle-thumb"></span></span>
+            </label>
+            <div class="mod-info">
+              <span class="mod-name">${m.label}</span>
+              <span class="mod-access">Access: ${m.access.join(', ')}</span>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- MEMBERS -->
+    <div class="stab-panel" id="stab-members">
+      <p class="s-hint" style="margin-bottom:1rem;">Define username, password, and portal access for each member. Changes take effect on next login.</p>
+      <div id="members-list">
+        ${CFG.members.map((m,i) => memberRow(m,i)).join('')}
+      </div>
+      <button class="s-add-btn" onclick="addMemberRow()">+ Add Member</button>
+    </div>
+
+    <!-- SAVE -->
+    <div class="s-actions">
+      <button class="btn-save" onclick="saveSettings()">Save All Changes</button>
+      <button class="btn-reset" onclick="if(confirm('Factory reset everything?')){CFG=ConfigManager.reset();applyTheme(CFG.colors);renderLanding();renderSettings();}">Factory Reset</button>
+      <span class="s-saved" id="s-saved-msg"></span>
+    </div>
+  `;
+}
+
+function sRow(label, id, val) {
+  return `<div class="s-row"><label class="s-label">${label}</label><input class="s-input" id="${id}" type="text" value="${esc(val||'')}" /></div>`;
+}
+
+function memberRow(m, i) {
+  const accessOpts = ['admin','member','view'].map(a =>
+    `<option value="${a}" ${m.access===a?'selected':''}>${a}</option>`).join('');
+  const rankOpts = ['President','Vice President','Sergeant at Arms','Road Captain','Treasurer','Secretary','Enforcer','Member','Prospect','Hangaround','Observer']
+    .map(r => `<option value="${r}" ${m.rank===r?'selected':''}>${r}</option>`).join('');
+  return `
+    <div class="member-edit-card" id="medit-${i}">
+      <div class="medit-header">
+        <span class="medit-num">#${i+1}</span>
+        <button class="medit-del" onclick="document.getElementById('medit-${i}').remove()" title="Remove">&#10005;</button>
+      </div>
+      <div class="medit-grid">
+        <div class="medit-field"><label>Display Name</label><input class="s-input" id="m-name-${i}"      value="${esc(m.name||'')}"/></div>
+        <div class="medit-field"><label>Rank</label><select class="s-input s-select" id="m-rank-${i}">${rankOpts}</select></div>
+        <div class="medit-field"><label>Username</label><input class="s-input" id="m-user-${i}"     value="${esc(m.username||'')}" autocomplete="off"/></div>
+        <div class="medit-field"><label>Password</label><input class="s-input" id="m-pass-${i}"     value="${esc(m.password||'')}" type="password" autocomplete="off"/></div>
+        <div class="medit-field"><label>Discord</label><input class="s-input" id="m-discord-${i}"   value="${esc(m.discord||'')}"/></div>
+        <div class="medit-field"><label>Discord ID</label><input class="s-input" id="m-discordid-${i}" value="${esc(m.discordId||'')}"/></div>
+        <div class="medit-field"><label>CID</label><input class="s-input" id="m-cid-${i}"      value="${esc(m.cid||'')}"/></div>
+        <div class="medit-field"><label>Join Date</label><input class="s-input" id="m-joined-${i}"   value="${esc(m.joined||'')}" type="date"/></div>
+        <div class="medit-field"><label>Portal Access</label><select class="s-input s-select" id="m-access-${i}">${accessOpts}</select></div>
+      </div>
+    </div>`;
+}
+
+function addMemberRow() {
+  const list = document.getElementById('members-list');
+  const i = document.querySelectorAll('.member-edit-card').length;
+  const div = document.createElement('div');
+  div.innerHTML = memberRow({name:'',rank:'Member',username:'',password:'',discord:'',discordId:'',cid:'',joined:'',access:'member'}, i);
+  list.appendChild(div.firstElementChild);
+}
+
+function switchStab(btn, panelId) {
+  document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.stab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId)?.classList.add('active');
+}
+
+function saveSettings() {
+  const g = id => document.getElementById(id)?.value?.trim() || '';
+
+  /* Club info */
+  CFG.club.name     = g('si-name')     || CFG.club.name;
+  CFG.club.motto    = g('si-motto')    || CFG.club.motto;
+  CFG.club.founded  = g('si-founded')  || CFG.club.founded;
+  CFG.club.location = g('si-location') || CFG.club.location;
+  CFG.club.about    = document.getElementById('si-about')?.value || CFG.club.about;
+  CFG.club.activeLogo = g('si-logo-active') || CFG.club.activeLogo;
+
+  /* Modules */
+  Object.keys(CFG.modules).forEach(id => {
+    const cb = document.getElementById(`mod-${id}`);
+    if (cb) CFG.modules[id].enabled = cb.checked;
+  });
+
+  /* Members */
+  const cards = document.querySelectorAll('.member-edit-card');
+  CFG.members = Array.from(cards).map((card, i) => ({
+    name:      g(`m-name-${i}`),
+    rank:      g(`m-rank-${i}`)      || 'Member',
+    username:  g(`m-user-${i}`).toLowerCase(),
+    password:  document.getElementById(`m-pass-${i}`)?.value || '',
+    discord:   g(`m-discord-${i}`),
+    discordId: g(`m-discordid-${i}`),
+    cid:       g(`m-cid-${i}`),
+    joined:    g(`m-joined-${i}`),
+    access:    g(`m-access-${i}`)    || 'member',
+  })).filter(m => m.username && m.password);
+
+  ConfigManager.save(CFG);
+  renderLanding();
+  renderLogos();
+
+  const msg = document.getElementById('s-saved-msg');
+  if (msg) { msg.textContent = 'Saved!'; msg.classList.add('show'); setTimeout(()=>msg.classList.remove('show'),2500); }
+}
+
+/* ── HELPERS ── */
+function esc(s='') { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ── KEYBOARD ── */
 document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    const active = document.querySelector('.page.active');
-    if (active?.id === 'page-login') {
-      if (document.activeElement?.id === 'username') {
-        document.getElementById('password')?.focus();
-      } else {
-        handleLogin();
-      }
-    }
-  }
-  if (e.key === 'Escape') {
-    const active = document.querySelector('.page.active');
-    if (active?.id === 'page-login') showPage('page-landing');
+  if (e.key !== 'Enter') return;
+  const active = document.querySelector('.page.active');
+  if (active?.id === 'page-portal') {
+    if (document.activeElement?.id === 'login-user') document.getElementById('login-pass')?.focus();
+    else handleLogin();
   }
 });
 
-/* ═══════════════════════════════════════════════════
-   INIT
-   ═══════════════════════════════════════════════════ */
+/* ── INIT ── */
 document.addEventListener('DOMContentLoaded', () => {
   applyTheme(CFG.colors);
   renderLanding();
