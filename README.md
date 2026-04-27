@@ -2,92 +2,113 @@
 
 Private members portal for the Wolves of Mayhem MC.
 
-## Project Structure
+## File Structure
 
 ```
 wolves-of-mayhem/
-├── index.html        ← Main entry point (all pages live here)
+├── index.html              ← All pages live here (single-page app)
 ├── css/
-│   └── style.css     ← All styles
+│   └── style.css           ← All styles + CSS variables
 ├── js/
-│   └── app.js        ← All JavaScript / logic
+│   ├── config.js           ← Default config, ConfigManager, applyTheme()
+│   ├── config-panel.js     ← Admin config panel UI + logic
+│   └── app.js              ← Routing, auth, dashboard, landing render
 └── README.md
 ```
 
+## How the Config System Works
+
+All site settings live in `js/config.js` as `DEFAULT_CONFIG`.
+When an admin makes changes via the **Config panel** (login as `prez`), they are saved to `localStorage` and override the defaults — no server needed.
+
+Changes persist across sessions. Use **Factory Reset** in the Config panel to revert everything to defaults.
+
 ## Demo Login Credentials
 
-| Username    | Password     | Role               | Access Level     |
-|-------------|--------------|---------------------|------------------|
-| `prez`      | `mayhem2024` | President           | Full access      |
-| `vp`        | `chapter1`   | Vice President      | Full access      |
-| `treasurer` | `ledger99`   | Treasurer           | Finances only    |
-| `sergeant`  | `patch01`    | Sergeant at Arms    | Standard         |
-| `member`    | `wolf`       | Member              | Standard         |
+| Username    | Password     | Role              | Access        |
+|-------------|--------------|-------------------|---------------|
+| `prez`      | `mayhem2024` | President         | Full (admin)  |
+| `vp`        | `chapter1`   | Vice President    | Full (admin)  |
+| `treasurer` | `ledger99`   | Treasurer         | Finances only |
+| `sergeant`  | `patch01`    | Sergeant at Arms  | Standard      |
+| `member`    | `wolf`       | Member            | Standard      |
 
-> ⚠️ **Before going live:** Update credentials in `js/app.js` under the `MEMBERS` array.
+> ⚠️ Update credentials via the Config panel before sharing with members.
 
-## Hosting on GitHub Pages
+## Access Levels
 
-### Step 1 — Create a GitHub Account
-If you don't have one, go to [github.com](https://github.com) and sign up for free.
+| Level      | Can access                                      |
+|------------|-------------------------------------------------|
+| `all`      | All modules including Config/Settings           |
+| `finances` | Roster, Finances, Events                        |
+| `standard` | Roster, Inventory, Events                       |
 
-### Step 2 — Create a New Repository
-1. Click the **+** icon (top right) → **New repository**
-2. Name it: `wolves-of-mayhem` (or anything you like)
-3. Set it to **Public** (required for free GitHub Pages)
-4. Leave everything else as default
-5. Click **Create repository**
+## Hosting on GitHub Pages — Step by Step
 
-### Step 3 — Upload Your Files
-**Option A — GitHub Web Interface (easiest, no software needed):**
-1. On your new repo page, click **uploading an existing file**
-2. Drag and drop ALL files and folders from this project
+### 1. Create a GitHub account
+Go to https://github.com and sign up (free).
+
+### 2. Create a new repository
+1. Click **+** → **New repository**
+2. Name: `wolves-of-mayhem` (or anything you like)
+3. Visibility: **Public** (required for free GitHub Pages)
+4. Click **Create repository**
+
+### 3. Upload your files
+**Easiest method — GitHub web upload:**
+1. Unzip this project folder
+2. On your new repo page, click **"uploading an existing file"**
+3. Drag in the entire contents:
    - `index.html`
-   - `css/` folder (with `style.css` inside)
-   - `js/` folder (with `app.js` inside)
+   - `css/` folder
+   - `js/` folder
    - `README.md`
-3. Scroll down, add a commit message like "Initial upload"
-4. Click **Commit changes**
+4. Add commit message: `Initial upload`
+5. Click **Commit changes**
 
-**Option B — Git Command Line:**
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/wolves-of-mayhem.git
-git push -u origin main
-```
+**Important:** Make sure the folder structure is preserved —
+`css/style.css` and `js/app.js` must be in their folders, not loose.
 
-### Step 4 — Enable GitHub Pages
-1. In your repository, click **Settings** (top tab)
-2. In the left sidebar, click **Pages**
-3. Under **Source**, select **Deploy from a branch**
-4. Under **Branch**, select `main` and folder `/root`
-5. Click **Save**
+### 4. Enable GitHub Pages
+1. Go to your repo → **Settings** → **Pages** (left sidebar)
+2. Under **Source** → **Deploy from a branch**
+3. Branch: `main`, Folder: `/ (root)`
+4. Click **Save**
 
-### Step 5 — Access Your Site
-After 1–2 minutes, your site will be live at:
+### 5. Your site goes live
+After 1–2 minutes, your URL will be:
 ```
 https://YOUR_USERNAME.github.io/wolves-of-mayhem/
 ```
+GitHub shows this URL on the Pages settings screen once it's ready.
 
-GitHub will show the URL on the Pages settings page once it's ready.
+---
+
+## Updating the Site Later
+
+After making code changes:
+1. Go to your GitHub repo
+2. Click on the file you want to update (e.g. `js/config.js`)
+3. Click the pencil ✏️ icon to edit
+4. Make your changes
+5. Click **Commit changes**
+
+The site auto-deploys within ~1 minute.
 
 ---
 
 ## Custom Domain (Optional)
-If you want a custom domain like `wolvesofmayhem.com`:
-1. Buy a domain from any registrar (Namecheap, GoDaddy, etc.)
-2. In GitHub Pages settings, enter your domain under **Custom domain**
-3. Update your domain's DNS to point to GitHub (they'll give you instructions)
+
+1. Buy a domain (Namecheap, GoDaddy, Cloudflare, etc.)
+2. Repo → Settings → Pages → **Custom domain** → enter your domain
+3. Update your domain's DNS as GitHub instructs (A records or CNAME)
 
 ---
 
-## Next Steps / Roadmap
-- [ ] Roster module — full member directory
-- [ ] Finances module — dues tracking, expenses
-- [ ] Inventory module — gear and merch logging
-- [ ] Events module — rides and meeting calendar
-- [ ] Settings / admin panel
-- [ ] Move authentication to a real backend (recommended before full club use)
+## Roadmap
+
+- [ ] Roster module — member directory with add/edit/remove
+- [ ] Finances module — dues ledger, expenses, balance
+- [ ] Inventory module — gear and merch with quantity tracking  
+- [ ] Events module — calendar with rides and meetings
+- [ ] Move credentials to a real backend (recommended for production)

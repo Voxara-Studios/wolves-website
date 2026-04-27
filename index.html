@@ -5,30 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Wolves of Mayhem MC — Members Portal" />
   <title>Wolves of Mayhem MC</title>
-
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet" />
-
-  <!-- Stylesheet -->
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════
      LANDING PAGE
-     ══════════════════════════════════════════════ -->
+     ══════════════════════════════════════════════════════ -->
 <div class="page active" id="page-landing">
 
-  <!-- NAV -->
   <nav>
-    <div class="nav-logo" onclick="showPage('page-landing')" role="button" tabindex="0">
+    <div class="nav-logo" onclick="showPage('page-landing')" role="button" tabindex="0" data-club-name>
       Wolves <span>of Mayhem</span>
     </div>
     <ul>
-      <li><a onclick="scrollTo('about')">About</a></li>
-      <li><a onclick="scrollTo('portal')">Portal</a></li>
+      <li><a onclick="scrollToSection('about')">About</a></li>
+      <li><a onclick="scrollToSection('portal')">Portal</a></li>
     </ul>
     <button class="btn btn-nav" onclick="showPage('page-login')">Member Login</button>
   </nav>
@@ -37,31 +32,8 @@
   <section class="hero">
     <div class="hero-bg"></div>
 
-    <!-- Club Patch SVG -->
-    <div class="hero-patch animate-1">
-      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Wolves of Mayhem MC Patch">
-        <polygon points="100,10 130,35 185,35 155,65 168,118 100,90 32,118 45,65 15,35 70,35"
-                 fill="#1a0000" stroke="#b20702" stroke-width="2.5"/>
-        <polygon points="100,22 124,42 171,42 147,66 158,112 100,87 42,112 53,66 29,42 76,42"
-                 fill="none" stroke="#b20702" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
-        <!-- Wolf head -->
-        <g fill="#b20702" opacity="0.9">
-          <ellipse cx="100" cy="68" rx="22" ry="18"/>
-          <ellipse cx="100" cy="83" rx="14" ry="10"/>
-          <path d="M78,60 Q70,48 72,42 Q80,52 88,55Z"/>
-          <path d="M122,60 Q130,48 128,42 Q120,52 112,55Z"/>
-          <circle cx="92" cy="63" r="3" fill="#0a0000"/>
-          <circle cx="108" cy="63" r="3" fill="#0a0000"/>
-          <path d="M92,72 Q100,78 108,72" fill="none" stroke="#0a0000" stroke-width="1.5"/>
-        </g>
-        <text x="100" y="108" text-anchor="middle"
-              font-family="'Black Ops One', serif" font-size="9"
-              fill="#e8e6e0" letter-spacing="2">WOLVES</text>
-        <text x="100" y="120" text-anchor="middle"
-              font-family="'Black Ops One', serif" font-size="7"
-              fill="#b20702" letter-spacing="3">OF MAYHEM</text>
-        <path d="M60,128 Q100,138 140,128" fill="none" stroke="#b20702" stroke-width="1" opacity="0.5"/>
-      </svg>
+    <div class="hero-patch animate-1" data-logo>
+      <!-- Filled by renderLanding() -->
     </div>
 
     <p class="hero-eyebrow animate-2">Est. Members Only</p>
@@ -73,34 +45,21 @@
 
     <div class="hero-divider animate-4"></div>
 
-    <p class="hero-sub animate-4">
-      A brotherhood forged in steel and fire. This is the private portal for club members — your chapter's command center.
+    <p class="hero-sub animate-4" data-club-motto>
+      Born to Ride. Built to Last.
     </p>
 
     <div class="hero-cta animate-5">
       <button class="btn btn-primary" onclick="showPage('page-login')">Enter the Portal</button>
-      <button class="btn btn-ghost" onclick="scrollTo('about')">About the Club</button>
+      <button class="btn btn-ghost"   onclick="scrollToSection('about')">About the Club</button>
     </div>
+
+    <div id="social-links" style="display:none;position:relative;z-index:2;margin-top:1rem;"></div>
   </section>
 
   <!-- STATS BAR -->
-  <div class="stats-bar">
-    <div class="stat-item">
-      <div class="stat-num">34</div>
-      <div class="stat-label">Active Members</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num">12</div>
-      <div class="stat-label">Years Running</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num">1</div>
-      <div class="stat-label">Chapter</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num">&#8734;</div>
-      <div class="stat-label">Brotherhood</div>
-    </div>
+  <div id="stats-bar" class="stats-bar">
+    <!-- Filled by renderLanding() -->
   </div>
 
   <!-- ABOUT -->
@@ -113,9 +72,7 @@
       and stay connected with your brothers.
     </p>
 
-    <!-- FEATURES GRID -->
     <div class="features-grid" id="portal">
-
       <div class="feature-card">
         <svg class="feature-icon" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -126,7 +83,6 @@
         <div class="feature-title">Roster</div>
         <div class="feature-desc">Full member directory. Track roles, ranks, contact info, and membership status.</div>
       </div>
-
       <div class="feature-card">
         <svg class="feature-icon" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <line x1="12" y1="1" x2="12" y2="23"/>
@@ -135,7 +91,6 @@
         <div class="feature-title">Finances</div>
         <div class="feature-desc">Club treasury tracking, dues collection, event expenses, and financial reports.</div>
       </div>
-
       <div class="feature-card">
         <svg class="feature-icon" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
@@ -143,7 +98,6 @@
         <div class="feature-title">Inventory</div>
         <div class="feature-desc">Club gear, merchandise, equipment — logged, tracked, and accounted for.</div>
       </div>
-
       <div class="feature-card">
         <svg class="feature-icon" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -154,128 +108,75 @@
         <div class="feature-title">Events</div>
         <div class="feature-desc">Rides, meetings, rallies — club calendar with RSVPs and announcements.</div>
       </div>
-
     </div>
   </section>
 
-  <!-- FOOTER -->
   <footer>
-    <div class="footer-logo">Wolves <span>of Mayhem</span></div>
+    <div class="footer-logo" data-club-name>Wolves <span>of Mayhem</span></div>
     <div class="footer-copy">Members only. All access restricted.</div>
   </footer>
 
 </div><!-- /page-landing -->
 
 
-<!-- ══════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════
      LOGIN PAGE
-     ══════════════════════════════════════════════ -->
+     ══════════════════════════════════════════════════════ -->
 <div class="page" id="page-login">
   <div class="login-page">
     <div class="login-bg"></div>
-
     <div class="login-card animate-1">
 
-      <!-- Club Logo -->
       <div class="login-logo">
-        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <polygon points="100,10 130,35 185,35 155,65 168,118 100,90 32,118 45,65 15,35 70,35"
-                   fill="#1a0000" stroke="#b20702" stroke-width="2.5"/>
-          <g fill="#b20702" opacity="0.9">
-            <ellipse cx="100" cy="68" rx="22" ry="18"/>
-            <ellipse cx="100" cy="83" rx="14" ry="10"/>
-            <path d="M78,60 Q70,48 72,42 Q80,52 88,55Z"/>
-            <path d="M122,60 Q130,48 128,42 Q120,52 112,55Z"/>
-            <circle cx="92" cy="63" r="3" fill="#0a0000"/>
-            <circle cx="108" cy="63" r="3" fill="#0a0000"/>
-          </g>
-        </svg>
-        <div class="login-logo-title">
+        <div data-logo style="width:70px;height:70px;display:block;margin:0 auto 0.75rem;"></div>
+        <div class="login-logo-title" data-club-name>
           Wolves <span>of Mayhem</span>
         </div>
         <div class="login-eyebrow">Member Portal</div>
       </div>
 
-      <!-- Login Form -->
       <div class="form-group">
         <label class="form-label" for="username">Username</label>
-        <input
-          class="form-input"
-          type="text"
-          id="username"
-          name="username"
-          placeholder="Enter your username"
-          autocomplete="username"
-          autocapitalize="none"
-          spellcheck="false"
-        />
+        <input class="form-input" type="text"     id="username" placeholder="Enter your username" autocomplete="username" autocapitalize="none" spellcheck="false" />
       </div>
-
       <div class="form-group">
         <label class="form-label" for="password">Password</label>
-        <input
-          class="form-input"
-          type="password"
-          id="password"
-          name="password"
-          placeholder="Enter your password"
-          autocomplete="current-password"
-        />
+        <input class="form-input" type="password" id="password" placeholder="Enter your password" autocomplete="current-password" />
       </div>
 
       <button class="btn-login" onclick="handleLogin()">Enter the Clubhouse</button>
-
-      <div class="login-error" id="login-error" role="alert">
-        Invalid credentials. Ride denied.
-      </div>
-
-      <button class="login-back" onclick="showPage('page-landing')">
-        &#8592; Back to main page
-      </button>
-
+      <div class="login-error" id="login-error" role="alert">Invalid credentials. Ride denied.</div>
+      <button class="login-back" onclick="showPage('page-landing')">&#8592; Back to main page</button>
     </div>
   </div>
 </div><!-- /page-login -->
 
 
-<!-- ══════════════════════════════════════════════
-     DASHBOARD PAGE
-     ══════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════════════
+     DASHBOARD
+     ══════════════════════════════════════════════════════ -->
 <div class="page" id="page-dashboard">
-
-  <!-- Dashboard Header -->
   <div class="dashboard-header">
     <div class="dash-logo">Wolves <span>of Mayhem</span></div>
     <div class="dash-user">
-      <div class="dash-welcome">
-        Welcome back, <strong id="dash-username">—</strong>
-      </div>
+      <div class="dash-welcome">Welcome back, <strong id="dash-username">—</strong></div>
       <button class="btn-logout" onclick="handleLogout()">Logout</button>
     </div>
   </div>
-
-  <!-- Dashboard Content -->
   <div class="dash-content">
-
     <div class="dash-greeting">
       <div class="dash-greeting-tag">Member Portal</div>
       <div class="dash-greeting-title">Clubhouse</div>
       <div class="dash-role-badge" id="dash-role">—</div>
     </div>
-
-    <!-- Module grid — rendered by app.js -->
     <div class="dash-modules" id="dash-modules"></div>
-
   </div>
 </div><!-- /page-dashboard -->
 
 
-<!-- ══════════════════════════════════════════════
-     PLACEHOLDER INNER PAGES
-     (These will be fleshed out in future updates)
-     ══════════════════════════════════════════════ -->
-
-<!-- Roster Page -->
+<!-- ══════════════════════════════════════════════════════
+     MODULE: ROSTER
+     ══════════════════════════════════════════════════════ -->
 <div class="page" id="page-roster">
   <div class="dashboard-header">
     <div class="dash-logo">Wolves <span>of Mayhem</span></div>
@@ -284,18 +185,19 @@
       <button class="btn-logout" onclick="handleLogout()">Logout</button>
     </div>
   </div>
-  <div class="dash-content">
-    <div class="dash-greeting">
-      <div class="dash-greeting-tag">Members</div>
-      <div class="dash-greeting-title">Roster</div>
+  <div class="module-page-content">
+    <div class="module-header">
+      <div class="module-header-tag">Members</div>
+      <div class="module-header-title">Roster</div>
     </div>
-    <p style="color: var(--text-secondary); font-size: 0.95rem;">
-      Roster module coming soon. Member directory, ranks, and contact management will live here.
-    </p>
+    <div class="placeholder-msg">Roster module coming soon.<br>Full member directory, ranks, and contact info will live here.</div>
   </div>
 </div>
 
-<!-- Finances Page -->
+
+<!-- ══════════════════════════════════════════════════════
+     MODULE: FINANCES
+     ══════════════════════════════════════════════════════ -->
 <div class="page" id="page-finances">
   <div class="dashboard-header">
     <div class="dash-logo">Wolves <span>of Mayhem</span></div>
@@ -304,18 +206,19 @@
       <button class="btn-logout" onclick="handleLogout()">Logout</button>
     </div>
   </div>
-  <div class="dash-content">
-    <div class="dash-greeting">
-      <div class="dash-greeting-tag">Treasury</div>
-      <div class="dash-greeting-title">Finances</div>
+  <div class="module-page-content">
+    <div class="module-header">
+      <div class="module-header-tag">Treasury</div>
+      <div class="module-header-title">Finances</div>
     </div>
-    <p style="color: var(--text-secondary); font-size: 0.95rem;">
-      Finances module coming soon. Dues, expenses, and club treasury tracking will live here.
-    </p>
+    <div class="placeholder-msg">Finances module coming soon.<br>Dues, expenses, and club treasury tracking will live here.</div>
   </div>
 </div>
 
-<!-- Inventory Page -->
+
+<!-- ══════════════════════════════════════════════════════
+     MODULE: INVENTORY
+     ══════════════════════════════════════════════════════ -->
 <div class="page" id="page-inventory">
   <div class="dashboard-header">
     <div class="dash-logo">Wolves <span>of Mayhem</span></div>
@@ -324,18 +227,19 @@
       <button class="btn-logout" onclick="handleLogout()">Logout</button>
     </div>
   </div>
-  <div class="dash-content">
-    <div class="dash-greeting">
-      <div class="dash-greeting-tag">Gear & Merch</div>
-      <div class="dash-greeting-title">Inventory</div>
+  <div class="module-page-content">
+    <div class="module-header">
+      <div class="module-header-tag">Gear & Merch</div>
+      <div class="module-header-title">Inventory</div>
     </div>
-    <p style="color: var(--text-secondary); font-size: 0.95rem;">
-      Inventory module coming soon. Gear, merchandise, and equipment logging will live here.
-    </p>
+    <div class="placeholder-msg">Inventory module coming soon.<br>Gear, merchandise, and equipment logging will live here.</div>
   </div>
 </div>
 
-<!-- Events Page -->
+
+<!-- ══════════════════════════════════════════════════════
+     MODULE: EVENTS
+     ══════════════════════════════════════════════════════ -->
 <div class="page" id="page-events">
   <div class="dashboard-header">
     <div class="dash-logo">Wolves <span>of Mayhem</span></div>
@@ -344,40 +248,58 @@
       <button class="btn-logout" onclick="handleLogout()">Logout</button>
     </div>
   </div>
-  <div class="dash-content">
-    <div class="dash-greeting">
-      <div class="dash-greeting-tag">Calendar</div>
-      <div class="dash-greeting-title">Events</div>
+  <div class="module-page-content">
+    <div class="module-header">
+      <div class="module-header-tag">Calendar</div>
+      <div class="module-header-title">Events</div>
     </div>
-    <p style="color: var(--text-secondary); font-size: 0.95rem;">
-      Events module coming soon. Rides, rallies, and meetings will be managed here.
-    </p>
+    <div class="placeholder-msg">Events module coming soon.<br>Rides, rallies, and meetings will be managed here.</div>
   </div>
 </div>
 
-<!-- Settings Page -->
-<div class="page" id="page-settings">
+
+<!-- ══════════════════════════════════════════════════════
+     CONFIG / SETTINGS PAGE  (admin only)
+     ══════════════════════════════════════════════════════ -->
+<div class="page" id="page-config">
   <div class="dashboard-header">
     <div class="dash-logo">Wolves <span>of Mayhem</span></div>
     <div class="dash-user">
-      <button class="btn-logout" onclick="showPage('page-dashboard')">&#8592; Back</button>
+      <button class="btn-logout" onclick="showPage('page-dashboard')">&#8592; Dashboard</button>
       <button class="btn-logout" onclick="handleLogout()">Logout</button>
     </div>
   </div>
-  <div class="dash-content">
-    <div class="dash-greeting">
-      <div class="dash-greeting-tag">Admin</div>
-      <div class="dash-greeting-title">Settings</div>
+  <div class="module-page-content">
+    <div class="module-header">
+      <div class="module-header-tag">Admin</div>
+      <div class="module-header-title">Site Configuration</div>
     </div>
-    <p style="color: var(--text-secondary); font-size: 0.95rem;">
-      Settings module coming soon. Member management and access control will live here.
-    </p>
+    <!-- Config panel is rendered here by config-panel.js -->
+    <div id="config-panel-body"></div>
   </div>
 </div>
 
 
-<!-- JavaScript -->
+<!-- ══════════════════════════════════════════════════════
+     SCRIPTS  (order matters)
+     ══════════════════════════════════════════════════════ -->
+<script src="js/config.js"></script>
+<script src="js/config-panel.js"></script>
 <script src="js/app.js"></script>
+
+<!-- Render config panel when its page becomes visible -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Intercept showPage to render config panel on demand
+    const _origShow = showPage;
+    window.showPage = function(id) {
+      _origShow(id);
+      if (id === 'page-config') {
+        renderConfigPanel();
+      }
+    };
+  });
+</script>
 
 </body>
 </html>
