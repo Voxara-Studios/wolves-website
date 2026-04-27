@@ -10,8 +10,8 @@ const DEFAULT_CONFIG = {
     founded:  '2022',
     location: 'Los Santos, San Andreas',
     about:    'The Wolves of Mayhem MC is a 1% outlaw motorcycle club based in Los Santos, San Andreas. Founded on the principles of brotherhood, loyalty, and riding free — we live by our own code. We are not a club you join. We are a family you earn.',
-    // Which logo to show on landing: 'patch' or 'wolf'
-    activeLogo: 'patch',
+    // Filename from the logos/ folder (e.g. "patch.png")
+    activeLogo: 'patch.png',
   },
   colors: {
     accent:        '#b20702',

@@ -1,0 +1,19 @@
+{
+  "logos": [
+    {
+      "file": "Full_Patch_Kutte.png",
+      "label": "Full Patch",
+      "description": "Full club patch with rockers and diamonds"
+    },
+    {
+      "file": "Full_Patch_2.png",
+      "label": "Patch",
+      "description": "club patch with rockers"
+    },
+    {
+      "file": "Enhanced_Center.png",
+      "label": "Wolf Head",
+      "description": "Club Wolf Head Logo"
+    }
+  ]
+}

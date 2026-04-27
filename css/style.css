@@ -574,3 +574,28 @@ body::after {
   .btn-hero-primary, .btn-hero-ghost { clip-path: none; }
   .medit-grid { grid-template-columns: 1fr; }
 }
+
+/* ── LOGO PREVIEW CARDS (Settings) ── */
+.logo-previews {
+  display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;
+}
+.logo-preview-card {
+  display: flex; flex-direction: column; align-items: center; gap: .4rem;
+  background: var(--bg3); border: 2px solid var(--border);
+  padding: 1rem 1.25rem; cursor: pointer;
+  transition: border-color .2s;
+  min-width: 130px;
+}
+.logo-preview-card:hover { border-color: var(--border2); }
+.logo-preview-card.logo-active { border-color: var(--red); }
+.logo-preview-card img {
+  width: 90px; height: 90px; object-fit: contain; display: block;
+}
+.logo-preview-name {
+  font-family: 'Oswald', sans-serif; font-size: .75rem; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--t1);
+}
+.logo-preview-file {
+  font-family: 'Courier New', monospace; font-size: .68rem; color: var(--t3);
+}
+.logo-preview-desc { font-size: .7rem; color: var(--t3); text-align: center; }
