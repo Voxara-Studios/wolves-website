@@ -11,7 +11,7 @@ const DEFAULT_CONFIG = {
     location: 'Los Santos, San Andreas',
     about:    'The Wolves of Mayhem MC is a 1% outlaw motorcycle club based in Los Santos, San Andreas. Founded on the principles of brotherhood, loyalty, and riding free — we live by our own code. We are not a club you join. We are a family you earn.',
     // Filename from the logos/ folder (e.g. "patch.png")
-    activeLogo: 'patch.png',
+    activeLogo: 'Full_Patch_Kutte.png',
   },
   colors: {
     accent:        '#b20702',
@@ -42,7 +42,7 @@ const DEFAULT_CONFIG = {
 
 /* ── Config Manager ── */
 const ConfigManager = (() => {
-  const KEY = 'wom_cfg_v3';
+  const KEY = 'wom_cfg_v4';
   function deepMerge(t, s) {
     const r = Object.assign({}, t);
     for (const k in s) {

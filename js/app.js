@@ -29,8 +29,8 @@ async function loadLogoManifest() {
   } catch (e) {
     console.warn('logos/manifest.json not loaded, using fallback', e);
     availableLogos = [
-      { file: 'patch.png', label: 'Full Patch',  description: 'Full club patch' },
-      { file: 'wolf.png',  label: 'Wolf Head',   description: 'Wolf head logo'  },
+      { file: 'Full_Patch_Kutte.png', label: 'Full Patch', description: 'Full club patch' },
+      { file: 'Enhanced_Center.png', label: 'Wolf Head', description: 'Wolf head logo' },
     ];
   }
 }
