@@ -13,21 +13,29 @@
 <body>
 
 <!-- ══════════════════════════════════════════
-     PAGE: LANDING
+     LANDING PAGE
      ══════════════════════════════════════════ -->
 <div class="page active" id="page-landing">
 
-  <!-- Sticky Nav -->
   <nav class="site-nav">
     <div class="nav-brand" onclick="showPage('page-landing')" role="button" tabindex="0">
-      <div style="width:32px;height:32px;" data-logo-slot="small"></div>
+      <!-- nav logo slot -->
+      <div style="width:32px;height:32px;flex-shrink:0;" data-logo-slot="nav"></div>
       <span class="nav-brand-name">Wolves <em>of Mayhem</em></span>
     </div>
+
     <ul class="nav-links">
       <li><a onclick="scrollToAbout()">About</a></li>
-      <li><a onclick="showPage('page-portal')">Member Portal</a></li>
+      <li id="nav-portal-li" style="display:none;">
+        <a onclick="goToPortal()">Member Portal</a>
+      </li>
     </ul>
-    <button class="nav-login-btn" onclick="showPage('page-portal')">Member Login</button>
+
+    <!-- Logged-out state -->
+    <button class="nav-login-btn" id="nav-login-btn" onclick="showPage('page-portal')">Member Login</button>
+
+    <!-- Logged-in state — injected by updateNav() -->
+    <div class="nav-member-area" id="nav-member-area" style="display:none;"></div>
   </nav>
 
   <!-- Hero -->
@@ -100,19 +108,17 @@
 
 
 <!-- ══════════════════════════════════════════
-     PAGE: PORTAL LOGIN
+     PORTAL LOGIN
      ══════════════════════════════════════════ -->
 <div class="page" id="page-portal">
   <div class="portal-page">
     <div class="portal-bg"></div>
     <div class="portal-card a1">
-
       <div class="portal-logo">
-        <div data-logo-slot="small" style="width:64px;height:64px;margin:0 auto .8rem;"></div>
+        <div data-logo-slot="login" style="width:64px;height:64px;margin:0 auto .8rem;"></div>
         <div class="portal-logo-name">Wolves <em>of Mayhem</em></div>
         <div class="portal-logo-sub">Member Portal</div>
       </div>
-
       <div class="login-field">
         <label class="login-label" for="login-user">Username</label>
         <input class="login-input" type="text" id="login-user"
@@ -124,26 +130,23 @@
         <input class="login-input" type="password" id="login-pass"
                placeholder="Enter password" autocomplete="current-password" />
       </div>
-
       <button class="login-submit" onclick="handleLogin()">Enter the Clubhouse</button>
       <div class="login-err" id="login-err" role="alert">Invalid credentials. Ride denied.</div>
       <button class="login-back" onclick="showPage('page-landing')">&#8592; Back to main page</button>
-
     </div>
   </div>
-</div><!-- /page-portal -->
+</div>
 
 
 <!-- ══════════════════════════════════════════
-     PAGE: DASHBOARD  (admin only)
+     DASHBOARD (admin)
      ══════════════════════════════════════════ -->
 <div class="page" id="page-dashboard">
   <div class="inner-header">
     <div class="inner-logo">Wolves <em>of Mayhem</em></div>
     <div class="inner-nav">
-      <span style="font-family:'Oswald',sans-serif;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);">
-        Welcome, <strong id="dash-name" style="color:var(--red);"></strong>
-      </span>
+      <span class="inner-welcome">Welcome, <strong id="dash-name"></strong></span>
+      <button class="btn-back" onclick="showPage('page-landing')">&#8592; Home</button>
       <button class="btn-logout-sm" onclick="handleLogout()">Logout</button>
     </div>
   </div>
@@ -156,30 +159,29 @@
 
 
 <!-- ══════════════════════════════════════════
-     PAGE: ROSTER
+     ROSTER
      ══════════════════════════════════════════ -->
 <div class="page" id="page-roster">
   <div class="inner-header">
     <div class="inner-logo">Wolves <em>of Mayhem</em></div>
     <div class="inner-nav">
-      <button class="btn-back" id="roster-back-btn" onclick="rosterBack()">&#8592; Back</button>
+      <button class="btn-back" onclick="rosterBack()">&#8592; Back</button>
       <button class="btn-logout-sm" onclick="handleLogout()">Logout</button>
     </div>
   </div>
   <div class="inner-content">
     <p class="page-tag">Club</p>
     <h1 class="page-title">Roster</h1>
-
     <div class="roster-meta">
       <div class="roster-count-badge">Members: <span id="roster-count">0</span></div>
     </div>
-
     <div class="table-wrap">
       <table class="roster-table">
         <thead>
           <tr>
             <th>Rank</th>
             <th>Name</th>
+            <th>Road Name</th>
             <th>Discord</th>
             <th>Discord ID</th>
             <th>CID</th>
@@ -187,8 +189,7 @@
             <th>Time in Club</th>
           </tr>
         </thead>
-        <tbody id="roster-tbody">
-        </tbody>
+        <tbody id="roster-tbody"></tbody>
       </table>
     </div>
   </div>
@@ -196,7 +197,7 @@
 
 
 <!-- ══════════════════════════════════════════
-     PAGE: FINANCES  (placeholder)
+     FINANCES
      ══════════════════════════════════════════ -->
 <div class="page" id="page-finances">
   <div class="inner-header">
@@ -209,13 +210,13 @@
   <div class="inner-content">
     <p class="page-tag">Treasury</p>
     <h1 class="page-title">Finances</h1>
-    <div class="placeholder-box">Finances module coming soon.<br>Club treasury, dues tracking, and expenses will live here.</div>
+    <div class="placeholder-box">Finances module coming soon.</div>
   </div>
 </div>
 
 
 <!-- ══════════════════════════════════════════
-     PAGE: INVENTORY  (placeholder)
+     INVENTORY
      ══════════════════════════════════════════ -->
 <div class="page" id="page-inventory">
   <div class="inner-header">
@@ -228,13 +229,13 @@
   <div class="inner-content">
     <p class="page-tag">Gear &amp; Merch</p>
     <h1 class="page-title">Inventory</h1>
-    <div class="placeholder-box">Inventory module coming soon.<br>Gear, merchandise, and equipment tracking will live here.</div>
+    <div class="placeholder-box">Inventory module coming soon.</div>
   </div>
 </div>
 
 
 <!-- ══════════════════════════════════════════
-     PAGE: EVENTS  (placeholder)
+     EVENTS
      ══════════════════════════════════════════ -->
 <div class="page" id="page-events">
   <div class="inner-header">
@@ -247,13 +248,13 @@
   <div class="inner-content">
     <p class="page-tag">Calendar</p>
     <h1 class="page-title">Events</h1>
-    <div class="placeholder-box">Events module coming soon.<br>Rides, rallies, and meetings will be managed here.</div>
+    <div class="placeholder-box">Events module coming soon.</div>
   </div>
 </div>
 
 
 <!-- ══════════════════════════════════════════
-     PAGE: SETTINGS  (admin only)
+     SETTINGS (admin)
      ══════════════════════════════════════════ -->
 <div class="page" id="page-settings">
   <div class="inner-header">
@@ -266,7 +267,6 @@
   <div class="inner-content">
     <p class="page-tag">Admin</p>
     <h1 class="page-title">Settings</h1>
-    <!-- Rendered by renderSettings() in app.js -->
     <div id="settings-body" style="margin-top:2rem;"></div>
   </div>
 </div>
@@ -279,10 +279,9 @@
 <script src="js/app.js"></script>
 
 <script>
-  /* Roster back button — go to dashboard if admin, landing if member/view */
   function rosterBack() {
     if (currentUser?.access === 'admin') showPage('page-dashboard');
-    else handleLogout();
+    else { showPage('page-landing'); }
   }
 </script>
 

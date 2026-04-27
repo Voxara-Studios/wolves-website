@@ -1,12 +1,14 @@
 /* ═══════════════════════════════════════════
-   WOLVES OF MAYHEM — App JS
+   WOLVES OF MAYHEM — App JS v5
    ═══════════════════════════════════════════ */
 'use strict';
 
-let currentUser = null;
-let availableLogos = []; // populated from logos/manifest.json on load
+let currentUser    = null;
+let availableLogos = [];
 
-/* ── ROUTER ── */
+/* ══════════════════════════════════════════
+   ROUTER
+   ══════════════════════════════════════════ */
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const t = document.getElementById(id);
@@ -19,36 +21,105 @@ function scrollToAbout() {
   document.getElementById('about-section')?.scrollIntoView({ behavior:'smooth' });
 }
 
-/* ── LOGO MANIFEST ── */
+/* ══════════════════════════════════════════
+   LOGO MANIFEST
+   ══════════════════════════════════════════ */
 async function loadLogoManifest() {
   try {
     const res = await fetch('logos/manifest.json?_=' + Date.now());
     if (!res.ok) throw new Error('manifest not found');
     const data = await res.json();
     availableLogos = data.logos || [];
-  } catch (e) {
+  } catch(e) {
     console.warn('logos/manifest.json not loaded, using fallback', e);
     availableLogos = [
-      { file: 'Full_Patch_Kutte.png', label: 'Full Patch', description: 'Full club patch' },
-      { file: 'Enhanced_Center.png', label: 'Wolf Head', description: 'Wolf head logo' },
+      { file: 'Full_Patch_Kutte.png', label: 'Full Patch',  description: 'Full club patch' },
+      { file: 'Full_Patch_2.png',     label: 'Patch',       description: 'Club patch' },
+      { file: 'Enhanced_Center.png',  label: 'Wolf Head',   description: 'Wolf head logo' },
     ];
   }
 }
 
-/* ── LOGO RENDERING ── */
-function renderLogos() {
-  const src = `logos/${CFG.club.activeLogo}`;
-  document.querySelectorAll('[data-logo-slot]').forEach(el => {
-    const which  = el.dataset.logoSlot;
-    const size   = which === 'hero' ? '240px' : '100%';
-    const radius = which === 'hero' ? '8px'   : '50%';
-    el.innerHTML = `<img src="${src}" alt="WOM Logo" style="width:${size};height:${size};object-fit:contain;border-radius:${radius};" onerror="this.style.opacity=0.3" />`;
-  });
-  const aboutImg = document.querySelector('.about-img');
-  if (aboutImg) aboutImg.src = src;
+/* ══════════════════════════════════════════
+   LOGO RENDERING
+   ══════════════════════════════════════════ */
+function logoSrc(slot) {
+  return `logos/${CFG.club.logos[slot] || availableLogos[0]?.file || ''}`;
 }
 
-/* ── LANDING ── */
+function renderLogos() {
+  /* Each [data-logo-slot] gets the right image for its slot */
+  document.querySelectorAll('[data-logo-slot]').forEach(el => {
+    const slot = el.dataset.logoSlot;
+    const src  = logoSrc(slot);
+    const isHero = slot === 'hero';
+    const size   = isHero ? '240px' : '100%';
+    const radius = isHero ? '8px'   : '50%';
+    const editAttr = (currentUser?.access === 'admin')
+      ? `onclick="openLogoPicker('${slot}')" title="Click to change logo" style="cursor:pointer;"`
+      : '';
+    el.innerHTML = `<img src="${src}" alt="WOM Logo"
+      style="width:${size};height:${size};object-fit:contain;border-radius:${radius};"
+      onerror="this.style.opacity=0.25" ${editAttr} />`;
+  });
+
+  /* About section static img */
+  const aboutImg = document.querySelector('.about-img');
+  if (aboutImg) {
+    aboutImg.src = logoSrc('about');
+    if (currentUser?.access === 'admin') {
+      aboutImg.style.cursor = 'pointer';
+      aboutImg.onclick = () => openLogoPicker('about');
+      aboutImg.title   = 'Click to change logo';
+    } else {
+      aboutImg.style.cursor = '';
+      aboutImg.onclick = null;
+    }
+  }
+}
+
+/* ── Logo Picker Modal ── */
+function openLogoPicker(slot) {
+  /* Remove any existing picker */
+  document.getElementById('logo-picker-modal')?.remove();
+
+  const slotLabels = { hero:'Hero Image', nav:'Nav Icon', about:'About Image', login:'Login Card' };
+  const modal = document.createElement('div');
+  modal.id = 'logo-picker-modal';
+  modal.innerHTML = `
+    <div class="lp-backdrop" onclick="closePicker()"></div>
+    <div class="lp-card">
+      <div class="lp-header">
+        <span class="lp-title">Change Logo — ${slotLabels[slot]||slot}</span>
+        <button class="lp-close" onclick="closePicker()">&#10005;</button>
+      </div>
+      <div class="lp-grid">
+        ${availableLogos.map(l => `
+          <div class="lp-item ${CFG.club.logos[slot]===l.file?'lp-active':''}"
+               onclick="selectLogo('${slot}','${l.file}')">
+            <img src="logos/${esc(l.file)}" alt="${esc(l.label)}" onerror="this.style.opacity=0.2" />
+            <span class="lp-label">${esc(l.label)}</span>
+            <span class="lp-file">${esc(l.file)}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function closePicker() {
+  document.getElementById('logo-picker-modal')?.remove();
+}
+
+function selectLogo(slot, file) {
+  CFG.club.logos[slot] = file;
+  ConfigManager.save(CFG);
+  closePicker();
+  renderLogos();
+}
+
+/* ══════════════════════════════════════════
+   LANDING / NAV
+   ══════════════════════════════════════════ */
 function renderLanding() {
   document.querySelectorAll('[data-name]').forEach(el     => el.textContent = CFG.club.name);
   document.querySelectorAll('[data-motto]').forEach(el    => el.textContent = CFG.club.motto);
@@ -56,9 +127,46 @@ function renderLanding() {
   document.querySelectorAll('[data-founded]').forEach(el  => el.textContent = CFG.club.founded);
   document.querySelectorAll('[data-about]').forEach(el    => el.textContent = CFG.club.about);
   renderLogos();
+  updateNav();
 }
 
-/* ── AUTH ── */
+function updateNav() {
+  const loginBtn  = document.getElementById('nav-login-btn');
+  const memberNav = document.getElementById('nav-member-area');
+
+  if (currentUser) {
+    /* Show road name (or display name) + Member Portal link */
+    const displayName = currentUser.roadName || currentUser.name || currentUser.username;
+    if (loginBtn)  loginBtn.style.display  = 'none';
+    if (memberNav) {
+      memberNav.style.display = 'flex';
+      memberNav.innerHTML = `
+        <span class="nav-member-name">${esc(displayName)}</span>
+        <button class="nav-portal-btn" onclick="goToPortal()">Member Portal</button>
+      `;
+    }
+  } else {
+    if (loginBtn)  loginBtn.style.display  = '';
+    if (memberNav) {
+      memberNav.style.display = 'none';
+      memberNav.innerHTML = '';
+    }
+  }
+}
+
+function goToPortal() {
+  if (!currentUser) { showPage('page-portal'); return; }
+  if (currentUser.access === 'admin') {
+    showPage('page-dashboard');
+    renderDashboard();
+  } else {
+    showPage('page-roster');
+  }
+}
+
+/* ══════════════════════════════════════════
+   AUTH
+   ══════════════════════════════════════════ */
 function handleLogin() {
   const u   = document.getElementById('login-user')?.value.trim().toLowerCase();
   const p   = document.getElementById('login-pass')?.value;
@@ -72,6 +180,8 @@ function handleLogin() {
   }
   err.classList.remove('show');
   currentUser = member;
+  updateNav();
+  renderLogos(); /* re-render so admin edit cursors appear */
 
   if (member.access === 'admin') {
     showPage('page-dashboard');
@@ -85,13 +195,18 @@ function handleLogout() {
   currentUser = null;
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
+  updateNav();
+  renderLogos();
   showPage('page-landing');
 }
 
-/* ── DASHBOARD ── */
+/* ══════════════════════════════════════════
+   DASHBOARD
+   ══════════════════════════════════════════ */
 function renderDashboard() {
   const el = document.getElementById('dash-name');
-  if (el) el.textContent = currentUser?.name || '—';
+  if (el) el.textContent = currentUser?.roadName || currentUser?.name || '—';
+
   const grid = document.getElementById('dash-grid');
   if (!grid) return;
 
@@ -111,62 +226,107 @@ function renderDashboard() {
     const hasAccess = m.access.includes(currentUser.access);
     return `
       <div class="dash-tile ${hasAccess?'':'locked'}"
-           ${hasAccess ? `onclick="showPage('${m.page}')"` : 'title="Access restricted"'}>
+           ${hasAccess ? `onclick="showPage('${m.page}')"` : `title="Access restricted"`}>
         <span class="tile-icon">${icons[id]||icons.settings}</span>
         <span class="tile-label">${m.label}</span>
-        ${!hasAccess ? `<span class="tile-lock"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>` : ''}
+        ${!hasAccess?`<span class="tile-lock"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>`:''}
       </div>`;
   }).join('');
 }
 
-/* ── ROSTER ── */
+/* ══════════════════════════════════════════
+   ROSTER — sectioned view
+   ══════════════════════════════════════════ */
 function renderRoster() {
   const tbody = document.getElementById('roster-tbody');
   const count = document.getElementById('roster-count');
   if (!tbody) return;
 
+  /* Members visible on roster (exclude view-only) */
   const members = CFG.members.filter(m => m.access !== 'view');
   if (count) count.textContent = members.length;
 
-  tbody.innerHTML = members.map(m => {
-    const tic = timeInClub(m.joined);
-    const joinFmt = m.joined ? new Date(m.joined).toLocaleDateString('en-CA') : '—';
-    return `
-      <tr>
-        <td><span class="rank-badge">${esc(m.rank||'Member')}</span></td>
-        <td class="name-cell">${esc(m.name)}</td>
-        <td>${esc(m.discord||'—')}</td>
-        <td class="mono">${esc(m.discordId||'—')}</td>
-        <td class="mono">${esc(m.cid||'—')}</td>
-        <td>${joinFmt}</td>
-        <td class="tic">${tic}</td>
+  /* Group members by section */
+  const sections = getSortedSections();
+  const grouped  = {};
+  sections.forEach(s => { grouped[s.id] = []; });
+
+  members.forEach(m => {
+    const sec = sectionForRank(m.rank);
+    if (!grouped[sec.id]) grouped[sec.id] = [];
+    grouped[sec.id].push(m);
+  });
+
+  let html = '';
+  sections.forEach(sec => {
+    const rows = grouped[sec.id] || [];
+    if (rows.length === 0) return; /* skip empty sections */
+
+    /* Section header row */
+    html += `
+      <tr class="roster-section-header">
+        <td colspan="8">
+          <span class="section-label">${esc(sec.label)}</span>
+          <span class="section-count">${rows.length}</span>
+        </td>
       </tr>`;
-  }).join('');
+
+    rows.forEach(m => {
+      const tic     = timeInClub(m.joined);
+      const joinFmt = m.joined ? new Date(m.joined).toLocaleDateString('en-CA') : '—';
+      html += `
+        <tr class="roster-member-row">
+          <td><span class="rank-badge">${esc(m.rank||'Member')}</span></td>
+          <td class="name-cell">${esc(m.name)}</td>
+          <td class="road-name-cell">${esc(m.roadName||'—')}</td>
+          <td>${esc(m.discord||'—')}</td>
+          <td class="mono">${esc(m.discordId||'—')}</td>
+          <td class="mono">${esc(m.cid||'—')}</td>
+          <td>${joinFmt}</td>
+          <td class="tic">${tic}</td>
+        </tr>`;
+    });
+  });
+
+  tbody.innerHTML = html || `<tr><td colspan="8" style="text-align:center;color:var(--t3);padding:2rem;">No members yet.</td></tr>`;
 }
 
-/* ── SETTINGS ── */
+/* ══════════════════════════════════════════
+   SETTINGS
+   ══════════════════════════════════════════ */
 function renderSettings() {
   const el = document.getElementById('settings-body');
   if (!el) return;
 
-  /* Build logo dropdown from manifest */
-  const logoOpts = availableLogos.map(l =>
-    `<option value="${esc(l.file)}" ${CFG.club.activeLogo===l.file?'selected':''}>${esc(l.label)} — ${esc(l.file)}</option>`
-  ).join('');
+  /* Logo slot selector rows */
+  const slotDefs = [
+    { slot: 'hero',  label: 'Hero Image (landing page)' },
+    { slot: 'nav',   label: 'Nav Icon (top bar)' },
+    { slot: 'about', label: 'About Section Image' },
+    { slot: 'login', label: 'Login Card Icon' },
+  ];
 
-  /* Build logo preview grid from manifest */
-  const logoPreviews = availableLogos.map(l => `
-    <div class="logo-preview-card ${CFG.club.activeLogo===l.file?'logo-active':''}">
-      <img src="logos/${esc(l.file)}" alt="${esc(l.label)}" onerror="this.style.opacity=0.2" />
-      <span class="logo-preview-name">${esc(l.label)}</span>
-      <span class="logo-preview-file">${esc(l.file)}</span>
-      ${l.description ? `<span class="logo-preview-desc">${esc(l.description)}</span>` : ''}
-    </div>`).join('');
+  const logoSlotRows = slotDefs.map(d => {
+    const opts = availableLogos.map(l =>
+      `<option value="${esc(l.file)}" ${CFG.club.logos[d.slot]===l.file?'selected':''}>${esc(l.label)} — ${esc(l.file)}</option>`
+    ).join('');
+    return `
+      <div class="s-row logo-slot-row">
+        <label class="s-label">${d.label}</label>
+        <div class="logo-slot-preview">
+          <img src="logos/${esc(CFG.club.logos[d.slot]||'')}" alt="" id="lsp-${d.slot}"
+               style="width:40px;height:40px;object-fit:contain;" onerror="this.style.opacity=0.2" />
+        </div>
+        <select class="s-input s-select logo-slot-select" data-slot="${d.slot}"
+                onchange="updateLogoSlotPreview(this)" style="max-width:260px;">${opts}</select>
+      </div>`;
+  }).join('');
 
   el.innerHTML = `
     <div class="stab-bar">
       <button class="stab active" onclick="switchStab(this,'stab-club')">Club Info</button>
-      <button class="stab" onclick="switchStab(this,'stab-logo')">Logo</button>
+      <button class="stab" onclick="switchStab(this,'stab-logos')">Logos</button>
+      <button class="stab" onclick="switchStab(this,'stab-sections')">Sections</button>
       <button class="stab" onclick="switchStab(this,'stab-modules')">Modules</button>
       <button class="stab" onclick="switchStab(this,'stab-members')">Members</button>
     </div>
@@ -183,26 +343,41 @@ function renderSettings() {
       </div>
     </div>
 
-    <!-- LOGO -->
-    <div class="stab-panel" id="stab-logo">
+    <!-- LOGOS -->
+    <div class="stab-panel" id="stab-logos">
       <p class="s-hint" style="margin-bottom:1.5rem;">
-        All <code>.png</code> files in the <code>logos/</code> folder are listed here automatically via <code>logos/manifest.json</code>.
-        To add a new logo: drop the PNG into <code>logos/</code> and add a line to <code>manifest.json</code>.
+        Assign a logo from the <code>logos/</code> folder to each position on the site.
+        You can also click any logo image on the landing page to change it directly.
       </p>
-
-      <div class="s-row">
-        <label class="s-label">Active Logo</label>
-        <select class="s-input s-select" id="si-logo-active" onchange="previewLogoChange(this.value)">${logoOpts}</select>
+      ${logoSlotRows}
+      <div class="logo-all-previews" style="margin-top:2rem;">
+        <p class="s-label" style="margin-bottom:.75rem;">All available logos</p>
+        <div class="logo-previews">
+          ${availableLogos.map(l => `
+            <div class="logo-preview-card">
+              <img src="logos/${esc(l.file)}" alt="${esc(l.label)}" onerror="this.style.opacity=0.2" />
+              <span class="logo-preview-name">${esc(l.label)}</span>
+              <span class="logo-preview-file">${esc(l.file)}</span>
+            </div>`).join('')}
+        </div>
       </div>
+    </div>
 
-      <div class="logo-previews" id="logo-previews-grid">
-        ${logoPreviews}
+    <!-- SECTIONS -->
+    <div class="stab-panel" id="stab-sections">
+      <p class="s-hint" style="margin-bottom:1rem;">
+        Drag sections to reorder. Edit section names and which ranks belong in each section.
+        Rank names must match exactly what you use in the Members tab.
+      </p>
+      <div class="sections-list" id="sections-list">
+        ${renderSectionRows()}
       </div>
+      <button class="s-add-btn" onclick="addSection()" style="margin-top:1rem;">+ Add Section</button>
     </div>
 
     <!-- MODULES -->
     <div class="stab-panel" id="stab-modules">
-      <p class="s-hint" style="margin-bottom:1.5rem;">Toggle modules on/off. Disabled modules are hidden from all users.</p>
+      <p class="s-hint" style="margin-bottom:1.5rem;">Toggle modules on/off.</p>
       <div class="module-toggle-list">
         ${Object.entries(CFG.modules).map(([id,m]) => `
           <div class="mod-row">
@@ -220,7 +395,9 @@ function renderSettings() {
 
     <!-- MEMBERS -->
     <div class="stab-panel" id="stab-members">
-      <p class="s-hint" style="margin-bottom:1rem;">Define credentials and access for each member. View-only accounts (like gangteam) are hidden from the public roster.</p>
+      <p class="s-hint" style="margin-bottom:1rem;">
+        Manage member credentials, ranks, and access. Road Name is shown on roster and in the nav when logged in.
+      </p>
       <div id="members-list">
         ${CFG.members.map((m,i) => memberRow(m,i)).join('')}
       </div>
@@ -230,29 +407,107 @@ function renderSettings() {
     <!-- SAVE -->
     <div class="s-actions">
       <button class="btn-save" onclick="saveSettings()">Save All Changes</button>
-      <button class="btn-reset" onclick="if(confirm('Factory reset everything?')){CFG=ConfigManager.reset();applyTheme(CFG.colors);renderLanding();renderSettings();}">Factory Reset</button>
+      <button class="btn-reset" onclick="if(confirm('Factory reset all settings?')){CFG=ConfigManager.reset();applyTheme(CFG.colors);renderLanding();renderSettings();}">Factory Reset</button>
       <span class="s-saved" id="s-saved-msg"></span>
     </div>
   `;
+
+  initSectionDrag();
 }
 
-/* Live logo preview when dropdown changes */
-function previewLogoChange(filename) {
-  /* Highlight the selected card */
-  document.querySelectorAll('.logo-preview-card').forEach(c => {
-    c.classList.toggle('logo-active', c.querySelector('.logo-preview-file')?.textContent === filename);
+/* ── Section rows HTML ── */
+function renderSectionRows() {
+  return getSortedSections().map((sec, i) => `
+    <div class="section-edit-row" id="sec-row-${sec.id}" draggable="true" data-sec-id="${sec.id}">
+      <div class="sec-drag-handle" title="Drag to reorder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="8" y1="6"  x2="16" y2="6"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+          <line x1="8" y1="18" x2="16" y2="18"/>
+        </svg>
+      </div>
+      <div class="sec-fields">
+        <input class="s-input sec-label-input" placeholder="Section name"
+               value="${esc(sec.label)}" id="sec-label-${sec.id}" />
+        <div class="sec-ranks-wrap">
+          <label class="sec-ranks-label">Ranks in this section (one per line)</label>
+          <textarea class="s-input sec-ranks-input" id="sec-ranks-${sec.id}"
+                    rows="3" placeholder="President&#10;Vice President">${esc((sec.ranks||[]).join('\n'))}</textarea>
+        </div>
+      </div>
+      <button class="medit-del sec-del" onclick="deleteSection('${sec.id}')" title="Delete section">&#10005;</button>
+    </div>`).join('');
+}
+
+function addSection() {
+  const id = 'sec_' + Date.now();
+  const newSec = { id, label: 'New Section', order: CFG.sections.length + 1, ranks: [] };
+  CFG.sections.push(newSec);
+  document.getElementById('sections-list').innerHTML = renderSectionRows();
+  initSectionDrag();
+}
+
+function deleteSection(id) {
+  if (!confirm('Delete this section? Members with ranks assigned here will fall to the last section.')) return;
+  CFG.sections = CFG.sections.filter(s => s.id !== id);
+  document.getElementById('sections-list').innerHTML = renderSectionRows();
+  initSectionDrag();
+}
+
+/* ── Drag-to-reorder sections ── */
+function initSectionDrag() {
+  const list = document.getElementById('sections-list');
+  if (!list) return;
+  let dragSrc = null;
+
+  list.querySelectorAll('.section-edit-row').forEach(row => {
+    row.addEventListener('dragstart', e => {
+      dragSrc = row;
+      row.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+      list.querySelectorAll('.section-edit-row').forEach(r => r.classList.remove('drag-over'));
+    });
+    row.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (row !== dragSrc) {
+        list.querySelectorAll('.section-edit-row').forEach(r => r.classList.remove('drag-over'));
+        row.classList.add('drag-over');
+      }
+    });
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      if (dragSrc && dragSrc !== row) {
+        const allRows = [...list.querySelectorAll('.section-edit-row')];
+        const fromIdx = allRows.indexOf(dragSrc);
+        const toIdx   = allRows.indexOf(row);
+        if (fromIdx < toIdx) list.insertBefore(dragSrc, row.nextSibling);
+        else                 list.insertBefore(dragSrc, row);
+      }
+      list.querySelectorAll('.section-edit-row').forEach(r => r.classList.remove('drag-over'));
+    });
   });
 }
 
-function sRow(label, id, val) {
-  return `<div class="s-row"><label class="s-label">${label}</label><input class="s-input" id="${id}" type="text" value="${esc(val||'')}" /></div>`;
+/* ── Logo slot live preview ── */
+function updateLogoSlotPreview(select) {
+  const slot    = select.dataset.slot;
+  const file    = select.value;
+  const preview = document.getElementById(`lsp-${slot}`);
+  if (preview) preview.src = `logos/${file}`;
 }
 
+/* ── Member row HTML ── */
 function memberRow(m, i) {
   const accessOpts = ['admin','member','view'].map(a =>
     `<option value="${a}" ${m.access===a?'selected':''}>${a}</option>`).join('');
-  const rankOpts = ['President','Vice President','Sergeant at Arms','Road Captain','Treasurer','Secretary','Enforcer','Member','Prospect','Hangaround','Observer']
-    .map(r => `<option value="${r}" ${m.rank===r?'selected':''}>${r}</option>`).join('');
+
+  /* Collect all rank names from sections for the datalist */
+  const allRanks = [...new Set(CFG.sections.flatMap(s => s.ranks||[]))];
+  const rankList = allRanks.map(r => `<option value="${esc(r)}">`).join('');
+
   return `
     <div class="member-edit-card" id="medit-${i}">
       <div class="medit-header">
@@ -261,7 +516,12 @@ function memberRow(m, i) {
       </div>
       <div class="medit-grid">
         <div class="medit-field"><label>Display Name</label><input class="s-input" id="m-name-${i}"      value="${esc(m.name||'')}"/></div>
-        <div class="medit-field"><label>Rank</label><select class="s-input s-select" id="m-rank-${i}">${rankOpts}</select></div>
+        <div class="medit-field"><label>Road Name</label><input class="s-input" id="m-roadname-${i}"     value="${esc(m.roadName||'')}"/></div>
+        <div class="medit-field">
+          <label>Rank</label>
+          <input class="s-input" id="m-rank-${i}" value="${esc(m.rank||'Member')}" list="rank-datalist-${i}" autocomplete="off"/>
+          <datalist id="rank-datalist-${i}">${rankList}</datalist>
+        </div>
         <div class="medit-field"><label>Username</label><input class="s-input" id="m-user-${i}"          value="${esc(m.username||'')}" autocomplete="off"/></div>
         <div class="medit-field"><label>Password</label><input class="s-input" id="m-pass-${i}"          value="${esc(m.password||'')}" type="password" autocomplete="off"/></div>
         <div class="medit-field"><label>Discord</label><input class="s-input" id="m-discord-${i}"        value="${esc(m.discord||'')}"/></div>
@@ -275,37 +535,50 @@ function memberRow(m, i) {
 
 function addMemberRow() {
   const list = document.getElementById('members-list');
-  const i = document.querySelectorAll('.member-edit-card').length;
-  const div = document.createElement('div');
-  div.innerHTML = memberRow({name:'',rank:'Member',username:'',password:'',discord:'',discordId:'',cid:'',joined:'',access:'member'}, i);
+  const i    = document.querySelectorAll('.member-edit-card').length;
+  const div  = document.createElement('div');
+  div.innerHTML = memberRow({name:'',roadName:'',rank:'Member',username:'',password:'',discord:'',discordId:'',cid:'',joined:'',access:'member'}, i);
   list.appendChild(div.firstElementChild);
 }
 
-function switchStab(btn, panelId) {
-  document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.stab-panel').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById(panelId)?.classList.add('active');
-}
-
+/* ── Save settings ── */
 function saveSettings() {
   const g = id => document.getElementById(id)?.value?.trim() || '';
 
-  CFG.club.name       = g('si-name')      || CFG.club.name;
-  CFG.club.motto      = g('si-motto')     || CFG.club.motto;
-  CFG.club.founded    = g('si-founded')   || CFG.club.founded;
-  CFG.club.location   = g('si-location')  || CFG.club.location;
-  CFG.club.about      = document.getElementById('si-about')?.value || CFG.club.about;
-  CFG.club.activeLogo = g('si-logo-active') || CFG.club.activeLogo;
+  /* Club info */
+  CFG.club.name     = g('si-name')     || CFG.club.name;
+  CFG.club.motto    = g('si-motto')    || CFG.club.motto;
+  CFG.club.founded  = g('si-founded')  || CFG.club.founded;
+  CFG.club.location = g('si-location') || CFG.club.location;
+  CFG.club.about    = document.getElementById('si-about')?.value || CFG.club.about;
 
+  /* Logo slots */
+  document.querySelectorAll('.logo-slot-select').forEach(sel => {
+    const slot = sel.dataset.slot;
+    if (slot) CFG.club.logos[slot] = sel.value;
+  });
+
+  /* Sections — read from current DOM order (drag may have changed it) */
+  const secRows = document.querySelectorAll('.section-edit-row');
+  CFG.sections = Array.from(secRows).map((row, idx) => {
+    const id    = row.dataset.secId;
+    const label = document.getElementById(`sec-label-${id}`)?.value?.trim() || 'Section';
+    const ranks = (document.getElementById(`sec-ranks-${id}`)?.value || '')
+      .split('\n').map(r => r.trim()).filter(Boolean);
+    return { id, label, order: idx + 1, ranks };
+  });
+
+  /* Modules */
   Object.keys(CFG.modules).forEach(id => {
     const cb = document.getElementById(`mod-${id}`);
     if (cb) CFG.modules[id].enabled = cb.checked;
   });
 
+  /* Members */
   const cards = document.querySelectorAll('.member-edit-card');
   CFG.members = Array.from(cards).map((_, i) => ({
     name:      g(`m-name-${i}`),
+    roadName:  g(`m-roadname-${i}`),
     rank:      g(`m-rank-${i}`)   || 'Member',
     username:  g(`m-user-${i}`).toLowerCase(),
     password:  document.getElementById(`m-pass-${i}`)?.value || '',
@@ -320,13 +593,26 @@ function saveSettings() {
   renderLanding();
 
   const msg = document.getElementById('s-saved-msg');
-  if (msg) { msg.textContent = 'Saved!'; msg.classList.add('show'); setTimeout(()=>msg.classList.remove('show'),2500); }
+  if (msg) { msg.textContent = 'Saved!'; msg.classList.add('show'); setTimeout(()=>msg.classList.remove('show'), 2500); }
 }
 
-/* ── HELPERS ── */
-function esc(s='') { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+/* ── Shared helpers ── */
+function sRow(label, id, val) {
+  return `<div class="s-row"><label class="s-label">${label}</label><input class="s-input" id="${id}" type="text" value="${esc(val||'')}" /></div>`;
+}
 
-/* ── KEYBOARD ── */
+function switchStab(btn, panelId) {
+  document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.stab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId)?.classList.add('active');
+}
+
+function esc(s='') {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ── Keyboard ── */
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
   const active = document.querySelector('.page.active');
@@ -334,11 +620,12 @@ document.addEventListener('keydown', e => {
     if (document.activeElement?.id === 'login-user') document.getElementById('login-pass')?.focus();
     else handleLogin();
   }
+  if (e.key === 'Escape') closePicker();
 });
 
-/* ── INIT ── */
+/* ── Init ── */
 document.addEventListener('DOMContentLoaded', async () => {
-  await loadLogoManifest();  // load manifest first so logos are ready
+  await loadLogoManifest();
   applyTheme(CFG.colors);
   renderLanding();
   showPage('page-landing');
