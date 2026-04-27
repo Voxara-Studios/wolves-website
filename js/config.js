@@ -11,8 +11,8 @@ const DEFAULT_CONFIG = {
   club: {
     name:    'Wolves of Mayhem',
     nameShort: 'WOM',
-    motto:   'Born to Ride. Built to Last.',
-    founded: '2034',
+    motto:   'Ride with the pack. Unleash the chaos.',
+    founded: '2024',
     chapter: 'Main Chapter',
     logoUrl: '',          // base64 or URL; empty = use SVG patch
   },
