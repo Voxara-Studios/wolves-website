@@ -15,6 +15,12 @@ function showPage(id) {
   if (t) { t.classList.add('active'); window.scrollTo(0,0); }
   if (id === 'page-roster')   renderRoster();
   if (id === 'page-settings') renderSettings();
+  if (id === 'page-events')   {
+    /* Show logout button on events page only if logged in */
+    const logoutBtn = document.getElementById('events-logout-btn');
+    if (logoutBtn) logoutBtn.style.display = currentUser ? '' : 'none';
+    renderEventsPage();
+  }
 }
 
 function scrollToAbout() {
@@ -135,9 +141,10 @@ function updateNav() {
   const memberNav = document.getElementById('nav-member-area');
 
   if (currentUser) {
-    /* Show road name (or display name) + Member Portal link */
     const displayName = currentUser.roadName || currentUser.name || currentUser.username;
     if (loginBtn)  loginBtn.style.display  = 'none';
+    const portalLi = document.getElementById('nav-portal-li');
+    if (portalLi) portalLi.style.display = '';
     if (memberNav) {
       memberNav.style.display = 'flex';
       memberNav.innerHTML = `
@@ -147,6 +154,8 @@ function updateNav() {
     }
   } else {
     if (loginBtn)  loginBtn.style.display  = '';
+    const portalLi = document.getElementById('nav-portal-li');
+    if (portalLi) portalLi.style.display = 'none';
     if (memberNav) {
       memberNav.style.display = 'none';
       memberNav.innerHTML = '';
@@ -529,6 +538,12 @@ function memberRow(m, i) {
         <div class="medit-field"><label>CID</label><input class="s-input" id="m-cid-${i}"                value="${esc(m.cid||'')}"/></div>
         <div class="medit-field"><label>Join Date</label><input class="s-input" id="m-joined-${i}"       value="${esc(m.joined||'')}" type="date"/></div>
         <div class="medit-field"><label>Portal Access</label><select class="s-input s-select" id="m-access-${i}">${accessOpts}</select></div>
+        <div class="medit-field">
+          <label>Timezone</label>
+          <select class="s-input s-select" id="m-tz-${i}">
+            ${TIMEZONES.map(tz => `<option value="${esc(tz.value)}" ${(m.timezone||'America/New_York')===tz.value?'selected':''}>${esc(tz.label)}</option>`).join('')}
+          </select>
+        </div>
       </div>
     </div>`;
 }
@@ -587,6 +602,7 @@ function saveSettings() {
     cid:       g(`m-cid-${i}`),
     joined:    g(`m-joined-${i}`),
     access:    g(`m-access-${i}`) || 'member',
+    timezone:  g(`m-tz-${i}`)    || 'America/New_York',
   })).filter(m => m.username && m.password);
 
   ConfigManager.save(CFG);

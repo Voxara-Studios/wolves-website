@@ -737,3 +737,263 @@ body::after {
 /* ── Admin logo-click hint ── */
 [data-logo-slot] img[title] { transition: filter .2s; }
 [data-logo-slot] img[title]:hover { filter: brightness(1.15) drop-shadow(0 0 8px var(--red)); }
+
+/* ══════════════════════════════════════
+   EVENTS MODULE
+   ══════════════════════════════════════ */
+
+/* ── Toolbar ── */
+.events-toolbar {
+  display: flex; justify-content: flex-end; margin-bottom: 1.5rem;
+}
+.btn-create-event {
+  background: var(--red); color: #fff; border: none;
+  font-family: 'Oswald', sans-serif; font-size: .8rem; font-weight: 600;
+  letter-spacing: .2em; text-transform: uppercase;
+  padding: .65rem 1.6rem; cursor: pointer; transition: background .2s;
+}
+.btn-create-event:hover { background: var(--red-dark); }
+
+/* ── Card Grid ── */
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+@media (max-width: 900px) { .events-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 580px) { .events-grid { grid-template-columns: 1fr; } }
+
+.events-empty {
+  text-align: center; padding: 4rem 2rem;
+  color: var(--t3); font-family: 'Oswald', sans-serif;
+  font-size: .9rem; letter-spacing: .15em; text-transform: uppercase;
+  border: 1px solid var(--border); background: var(--bg2);
+}
+
+/* ── Event Card ── */
+.ev-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  cursor: pointer; transition: border-color .2s, transform .15s;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.ev-card:hover { border-color: var(--red-border); transform: translateY(-2px); }
+
+.ev-card-img {
+  width: 100%; height: 180px;
+  background-size: cover; background-position: center;
+  background-color: var(--bg3);
+  flex-shrink: 0;
+}
+.ev-card-img--placeholder {
+  display: flex; align-items: center; justify-content: center;
+}
+.ev-card-img--placeholder svg {
+  width: 40px; height: 40px; stroke: var(--t3); fill: none; stroke-width: 1.5;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+.ev-card-body { padding: 1rem 1.1rem; flex: 1; display: flex; flex-direction: column; gap: .5rem; }
+.ev-card-badges { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+.ev-private-badge {
+  font-family: 'Oswald', sans-serif; font-size: .6rem; font-weight: 600;
+  letter-spacing: .15em; text-transform: uppercase;
+  background: var(--red-faint); border: 1px solid var(--red-border); color: #c05050;
+  padding: .15rem .55rem;
+}
+.ev-public-badge {
+  font-family: 'Oswald', sans-serif; font-size: .6rem; font-weight: 600;
+  letter-spacing: .15em; text-transform: uppercase;
+  background: rgba(76,175,80,.1); border: 1px solid rgba(76,175,80,.35); color: #4caf50;
+  padding: .15rem .55rem;
+}
+.ev-recur-badge {
+  font-family: 'Oswald', sans-serif; font-size: .6rem; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase;
+  background: rgba(100,150,255,.1); border: 1px solid rgba(100,150,255,.3); color: #7aabff;
+  padding: .15rem .55rem;
+}
+
+.ev-card-title {
+  font-family: 'Oswald', sans-serif; font-size: 1rem; font-weight: 600;
+  letter-spacing: .05em; color: var(--t1); line-height: 1.3;
+}
+.ev-card-time {
+  display: flex; align-items: center; gap: .4rem;
+  font-family: 'Oswald', sans-serif; font-size: .75rem; font-weight: 400;
+  letter-spacing: .06em; color: var(--t2);
+}
+.ev-card-time svg {
+  width: 13px; height: 13px; flex-shrink: 0;
+  stroke: var(--t3); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.ev-card-tz { font-size: .65rem; color: var(--t3); margin-top: -.2rem; }
+
+/* ── Shared modal overlay ── */
+.ev-modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 4000;
+  background: rgba(0,0,0,.78); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center; padding: 1.5rem;
+  overflow-y: auto;
+}
+.ev-modal-overlay.open { display: flex; }
+
+/* ── Event Detail Modal ── */
+.ev-modal-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  width: 100%; max-width: 580px;
+  border-top: 3px solid var(--red);
+  position: relative; max-height: 90vh; overflow-y: auto;
+}
+.ev-modal-close {
+  position: fixed; top: 1.25rem; right: 1.5rem;
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--t2); font-size: 1.1rem; width: 36px; height: 36px;
+  cursor: pointer; z-index: 10; transition: color .2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.ev-modal-close:hover { color: var(--red); }
+
+.ev-modal-img {
+  width: 100%; max-height: 260px; object-fit: cover; display: block;
+}
+.ev-modal-img-placeholder {
+  width: 100%; height: 180px; background: var(--bg3);
+  display: flex; align-items: center; justify-content: center;
+}
+.ev-modal-img-placeholder svg {
+  width: 48px; height: 48px; stroke: var(--t3); fill: none; stroke-width: 1.5;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+.ev-modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+.ev-modal-badges { display: flex; gap: .5rem; flex-wrap: wrap; }
+.ev-modal-title {
+  font-family: 'Black Ops One', cursive;
+  font-size: 1.5rem; text-transform: uppercase; color: var(--t1); line-height: 1.1;
+}
+.ev-modal-recur {
+  font-family: 'Oswald', sans-serif; font-size: .65rem; font-weight: 600;
+  letter-spacing: .15em; text-transform: uppercase; color: #7aabff;
+  background: rgba(100,150,255,.1); border: 1px solid rgba(100,150,255,.3);
+  padding: .15rem .55rem;
+}
+.ev-modal-time {
+  display: flex; align-items: center; gap: .5rem;
+  font-family: 'Oswald', sans-serif; font-size: .88rem; color: var(--t2);
+}
+.ev-modal-time svg {
+  width: 15px; height: 15px; stroke: var(--t3); fill: none; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0;
+}
+.ev-modal-tz {
+  font-size: .68rem; color: var(--t3);
+  border: 1px solid var(--border); padding: .1rem .45rem; margin-left: .25rem;
+}
+.ev-modal-desc {
+  font-size: .9rem; color: var(--t2); line-height: 1.75;
+  border-top: 1px solid var(--border); padding-top: 1rem;
+}
+
+/* ── Opt-in section ── */
+.ev-modal-attendance {
+  border-top: 1px solid var(--border); padding-top: 1rem;
+  display: flex; flex-direction: column; gap: .85rem;
+}
+.btn-optin {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--t2); font-family: 'Oswald', sans-serif; font-size: .8rem;
+  font-weight: 600; letter-spacing: .18em; text-transform: uppercase;
+  padding: .6rem 1.8rem; cursor: pointer; transition: all .2s; align-self: flex-start;
+}
+.btn-optin:hover { border-color: var(--red-border); color: var(--red); background: var(--red-faint); }
+.btn-optin--active { background: var(--red-faint); border-color: var(--red-border); color: var(--red); }
+
+.ev-attendance-count {
+  display: flex; gap: .5rem; align-items: center;
+  font-family: 'Oswald', sans-serif; font-size: .75rem; letter-spacing: .08em;
+}
+.ev-att-in  { color: #4caf50; }
+.ev-att-out { color: var(--t3); }
+.ev-att-sep { color: var(--t3); }
+
+.ev-attendance-lists {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+}
+.ev-att-col { display: flex; flex-direction: column; gap: .35rem; }
+.ev-att-heading {
+  font-family: 'Oswald', sans-serif; font-size: .65rem; font-weight: 700;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--t3);
+  border-bottom: 1px solid var(--border); padding-bottom: .3rem; margin-bottom: .15rem;
+}
+.ev-att-name {
+  font-family: 'Oswald', sans-serif; font-size: .78rem; letter-spacing: .05em;
+  padding: .2rem 0;
+}
+.ev-att-name--in  { color: var(--t1); }
+.ev-att-name--out { color: var(--t3); }
+.ev-att-empty     { font-size: .75rem; color: var(--t3); font-style: italic; }
+
+/* ── Admin controls on modal ── */
+.ev-modal-admin {
+  border-top: 1px solid var(--border); padding-top: 1rem;
+  display: flex; gap: .75rem; flex-wrap: wrap;
+}
+.ev-edit-btn {
+  background: transparent; border: 1px solid var(--border); color: var(--t2);
+  font-family: 'Oswald', sans-serif; font-size: .75rem; font-weight: 600;
+  letter-spacing: .15em; text-transform: uppercase; padding: .5rem 1.2rem;
+  cursor: pointer; transition: color .2s, border-color .2s;
+}
+.ev-edit-btn:hover { color: var(--t1); border-color: var(--border2); }
+.ev-del-btn {
+  background: transparent; border: 1px solid var(--red-border); color: #c05050;
+  font-family: 'Oswald', sans-serif; font-size: .75rem; font-weight: 600;
+  letter-spacing: .15em; text-transform: uppercase; padding: .5rem 1.2rem;
+  cursor: pointer; transition: background .2s;
+}
+.ev-del-btn:hover { background: var(--red-faint); }
+
+/* ── Event Editor Modal ── */
+.ev-editor-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  width: 100%; max-width: 620px;
+  border-top: 3px solid var(--red);
+  max-height: 92vh; overflow-y: auto;
+}
+.ee-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: var(--bg2); z-index: 2;
+}
+.ee-title {
+  font-family: 'Oswald', sans-serif; font-size: .88rem; font-weight: 600;
+  letter-spacing: .15em; text-transform: uppercase; color: var(--t1);
+}
+.ee-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+.ee-field { display: flex; flex-direction: column; gap: .4rem; }
+.ee-label {
+  font-family: 'Oswald', sans-serif; font-size: .68rem; font-weight: 600;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--t3);
+}
+.ee-hint { font-size: .75rem; color: var(--t3); margin-top: .1rem; }
+.ee-datetime-row { display: flex; gap: .75rem; flex-wrap: wrap; }
+.ee-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding-top: .5rem; border-top: 1px solid var(--border); }
+
+/* ── Image upload in editor ── */
+.ee-img-preview {
+  width: 100%; height: 160px; background: var(--bg3); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: .5rem;
+}
+.ee-img-preview img { width: 100%; height: 100%; object-fit: cover; }
+.ee-img-preview span { font-size: .8rem; color: var(--t3); }
+.ee-img-options { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.ee-img-upload-btn {
+  font-family: 'Oswald', sans-serif; font-size: .75rem; font-weight: 600;
+  letter-spacing: .15em; text-transform: uppercase;
+  background: transparent; border: 1px solid var(--border); color: var(--t2);
+  padding: .5rem 1.1rem; cursor: pointer; transition: color .2s, border-color .2s; white-space: nowrap;
+}
+.ee-img-upload-btn:hover { color: var(--t1); border-color: var(--border2); }
+.ee-img-or { font-size: .75rem; color: var(--t3); white-space: nowrap; }

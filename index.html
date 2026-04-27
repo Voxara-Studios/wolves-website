@@ -26,6 +26,7 @@
 
     <ul class="nav-links">
       <li><a onclick="scrollToAbout()">About</a></li>
+      <li><a onclick="showPage('page-events')">Events</a></li>
       <li id="nav-portal-li" style="display:none;">
         <a onclick="goToPortal()">Member Portal</a>
       </li>
@@ -241,15 +242,30 @@
   <div class="inner-header">
     <div class="inner-logo">Wolves <em>of Mayhem</em></div>
     <div class="inner-nav">
-      <button class="btn-back" onclick="showPage('page-dashboard')">&#8592; Back</button>
-      <button class="btn-logout-sm" onclick="handleLogout()">Logout</button>
+      <button class="btn-back" onclick="eventsBack()">&#8592; Back</button>
+      <button class="btn-logout-sm" id="events-logout-btn" onclick="handleLogout()" style="display:none;">Logout</button>
     </div>
   </div>
   <div class="inner-content">
     <p class="page-tag">Calendar</p>
     <h1 class="page-title">Events</h1>
-    <div class="placeholder-box">Events module coming soon.</div>
+    <div id="events-container"></div>
   </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     EVENT DETAIL MODAL
+     ══════════════════════════════════════════ -->
+<div class="ev-modal-overlay" id="event-modal" onclick="handleModalBackdropClick(event)">
+  <div class="ev-modal-card" id="event-modal-inner"></div>
+  <button class="ev-modal-close" onclick="closeEventDetail()">&#10005;</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     EVENT EDITOR MODAL (admin)
+     ══════════════════════════════════════════ -->
+<div class="ev-modal-overlay" id="event-editor" onclick="handleEditorBackdropClick(event)">
+  <div class="ev-editor-card" id="event-editor-inner"></div>
 </div>
 
 
@@ -276,12 +292,26 @@
      SCRIPTS
      ══════════════════════════════════════════ -->
 <script src="js/config.js"></script>
+<script src="js/events.js"></script>
 <script src="js/app.js"></script>
 
 <script>
   function rosterBack() {
     if (currentUser?.access === 'admin') showPage('page-dashboard');
     else { showPage('page-landing'); }
+  }
+
+  function eventsBack() {
+    if (currentUser?.access === 'admin') showPage('page-dashboard');
+    else showPage('page-landing');
+  }
+
+  function handleModalBackdropClick(e) {
+    if (e.target === document.getElementById('event-modal')) closeEventDetail();
+  }
+
+  function handleEditorBackdropClick(e) {
+    if (e.target === document.getElementById('event-editor')) closeEventEditor();
   }
 </script>
 
