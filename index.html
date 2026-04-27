@@ -80,6 +80,18 @@
     </div>
   </section>
 
+  <!-- Upcoming Events Strip -->
+  <section class="landing-events-strip" id="landing-events-strip">
+    <div class="les-header">
+      <div class="les-heading-wrap">
+        <p class="les-tag">Upcoming</p>
+        <h2 class="les-title">Events</h2>
+      </div>
+      <button class="les-view-all" onclick="showPage('page-public-events')">View All &rarr;</button>
+    </div>
+    <div class="les-grid" id="landing-events-grid"></div>
+  </section>
+
   <!-- About Section -->
   <section class="about-section" id="about-section">
     <div class="about-inner">
@@ -252,6 +264,42 @@
     <div id="events-container"></div>
   </div>
 </div>
+
+<!-- ══════════════════════════════════════════
+     PUBLIC EVENTS PAGE (with landing nav)
+     ══════════════════════════════════════════ -->
+<div class="page" id="page-public-events">
+
+  <nav class="site-nav">
+    <div class="nav-brand" onclick="showPage('page-landing')" role="button" tabindex="0">
+      <div style="width:32px;height:32px;flex-shrink:0;" data-logo-slot="nav"></div>
+      <span class="nav-brand-name">Wolves <em>of Mayhem</em></span>
+    </div>
+    <ul class="nav-links">
+      <li><a onclick="showPage('page-landing')">Home</a></li>
+      <li><a onclick="showPage('page-landing'); setTimeout(scrollToAbout,200)">About</a></li>
+      <li><a class="nav-link-active">Events</a></li>
+      <li id="pub-ev-portal-li" style="display:none;"><a onclick="goToPortal()">Member Portal</a></li>
+    </ul>
+    <button class="nav-login-btn" id="pub-ev-login-btn" onclick="showPage('page-portal')">Member Login</button>
+    <div class="nav-member-area" id="pub-ev-member-area" style="display:none;"></div>
+  </nav>
+
+  <div class="pub-events-page">
+    <div class="pub-events-hero">
+      <div class="pub-events-hero-bg"></div>
+      <div class="pub-events-hero-content">
+        <p class="hero-rocker" style="position:relative;z-index:2;">Club Calendar</p>
+        <h1 class="pub-events-title">Events</h1>
+      </div>
+    </div>
+    <div class="pub-events-body">
+      <div id="pub-events-container"></div>
+    </div>
+  </div>
+
+</div>
+
 
 <!-- ══════════════════════════════════════════
      EVENT DETAIL MODAL

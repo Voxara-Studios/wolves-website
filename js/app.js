@@ -13,14 +13,15 @@ function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const t = document.getElementById(id);
   if (t) { t.classList.add('active'); window.scrollTo(0,0); }
-  if (id === 'page-roster')   renderRoster();
-  if (id === 'page-settings') renderSettings();
-  if (id === 'page-events')   {
-    /* Show logout button on events page only if logged in */
+  if (id === 'page-roster')         renderRoster();
+  if (id === 'page-settings')       renderSettings();
+  if (id === 'page-events') {
     const logoutBtn = document.getElementById('events-logout-btn');
     if (logoutBtn) logoutBtn.style.display = currentUser ? '' : 'none';
     renderEventsPage();
   }
+  if (id === 'page-public-events')  renderPublicEventsPage();
+  if (id === 'page-landing')        renderLandingEvents();
 }
 
 function scrollToAbout() {
@@ -134,6 +135,7 @@ function renderLanding() {
   document.querySelectorAll('[data-about]').forEach(el    => el.textContent = CFG.club.about);
   renderLogos();
   updateNav();
+  renderLandingEvents();
 }
 
 function updateNav() {
@@ -225,6 +227,7 @@ function renderDashboard() {
     inventory: `<svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
     events:    `<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
     settings:  `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+    mainsite:  `<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
   };
 
   const mods = Object.entries(CFG.modules)
@@ -646,3 +649,129 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderLanding();
   showPage('page-landing');
 });
+
+/* ══════════════════════════════════════════
+   LANDING PAGE — UPCOMING EVENTS STRIP
+   ══════════════════════════════════════════ */
+function renderLandingEvents() {
+  const grid = document.getElementById('landing-events-grid');
+  if (!grid) return;
+
+  const isLoggedIn = !!currentUser;
+  const tz         = getUserTz();
+  const instances  = getUpcomingInstances(isLoggedIn).slice(0, 3);
+
+  if (instances.length === 0) {
+    grid.innerHTML = `<div class="les-empty">No upcoming events scheduled.</div>`;
+    return;
+  }
+
+  grid.innerHTML = instances.map(inst => {
+    const timeStr   = formatEventTimeShort(inst.instanceDate, tz);
+    const privBadge = inst.visibility === 'private'
+      ? `<span class="ev-private-badge">Members Only</span>` : '';
+    const imgStyle  = inst.imageUrl
+      ? `background-image:url('${escAttr(inst.imageUrl)}')`
+      : '';
+    const imgClass  = inst.imageUrl ? 'les-card-img' : 'les-card-img les-card-img--empty';
+
+    return `
+      <div class="les-card" onclick="openLandingEventDetail('${esc(inst.id)}','${esc(inst.instanceDate)}')">
+        <div class="${imgClass}" style="${imgStyle}">
+          ${!inst.imageUrl ? `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>` : ''}
+        </div>
+        <div class="les-card-body">
+          ${privBadge}
+          <div class="les-card-title">${esc(inst.title)}</div>
+          <div class="les-card-time">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ${esc(timeStr)}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* Open event detail from landing page — uses the same modal */
+function openLandingEventDetail(eventId, instanceDate) {
+  openEventDetail(eventId, instanceDate);
+}
+
+/* ══════════════════════════════════════════
+   PUBLIC EVENTS PAGE
+   ══════════════════════════════════════════ */
+function renderPublicEventsPage() {
+  const container = document.getElementById('pub-events-container');
+  if (!container) return;
+
+  /* Sync the public events nav state */
+  updatePublicEventsNav();
+
+  const isLoggedIn = !!currentUser;
+  const isAdmin    = currentUser?.access === 'admin';
+  const tz         = getUserTz();
+  const instances  = getUpcomingInstances(isLoggedIn);
+
+  let html = '';
+
+  if (isAdmin) {
+    html += `<div class="events-toolbar"><button class="btn-create-event" onclick="openEventEditor()">+ Create Event</button></div>`;
+  }
+
+  if (instances.length === 0) {
+    html += `<div class="events-empty">No upcoming events. Check back soon.</div>`;
+  } else {
+    html += `<div class="events-grid">`;
+    instances.forEach(inst => {
+      const timeStr   = formatEventTimeShort(inst.instanceDate, tz);
+      const privBadge = inst.visibility === 'private'
+        ? `<span class="ev-private-badge">Members Only</span>` : '';
+      const recurBadge = inst.recurring && inst.recurring !== 'none'
+        ? `<span class="ev-recur-badge">${inst.recurring}</span>` : '';
+      const imgHtml = inst.imageUrl
+        ? `<div class="ev-card-img" style="background-image:url('${escAttr(inst.imageUrl)}')"></div>`
+        : `<div class="ev-card-img ev-card-img--placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
+
+      html += `
+        <div class="ev-card" onclick="openEventDetail('${esc(inst.id)}','${esc(inst.instanceDate)}')">
+          ${imgHtml}
+          <div class="ev-card-body">
+            <div class="ev-card-badges">${privBadge}${recurBadge}</div>
+            <div class="ev-card-title">${esc(inst.title)}</div>
+            <div class="ev-card-time">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ${esc(timeStr)}
+            </div>
+            <div class="ev-card-tz">Showing in ${tz.replace(/_/g,' ')}</div>
+          </div>
+        </div>`;
+    });
+    html += `</div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+/* Keep the public events page nav in sync with login state */
+function updatePublicEventsNav() {
+  const loginBtn  = document.getElementById('pub-ev-login-btn');
+  const memberArea = document.getElementById('pub-ev-member-area');
+  const portalLi  = document.getElementById('pub-ev-portal-li');
+
+  if (currentUser) {
+    const displayName = currentUser.roadName || currentUser.name || currentUser.username;
+    if (loginBtn)   loginBtn.style.display   = 'none';
+    if (portalLi)   portalLi.style.display   = '';
+    if (memberArea) {
+      memberArea.style.display = 'flex';
+      memberArea.innerHTML = `
+        <span class="nav-member-name">${esc(displayName)}</span>
+        <button class="nav-portal-btn" onclick="goToPortal()">Member Portal</button>
+      `;
+    }
+  } else {
+    if (loginBtn)   loginBtn.style.display   = '';
+    if (portalLi)   portalLi.style.display   = 'none';
+    if (memberArea) { memberArea.style.display = 'none'; memberArea.innerHTML = ''; }
+  }
+}

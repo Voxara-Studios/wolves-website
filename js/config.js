@@ -38,6 +38,7 @@ const DEFAULT_CONFIG = {
     inventory: { label: 'Inventory', enabled: true,  order: 3, access: ['admin','member'],        page: 'page-inventory' },
     events:    { label: 'Events',    enabled: true,  order: 4, access: ['admin','view','member'], page: 'page-events'    },
     settings:  { label: 'Settings',  enabled: true,  order: 5, access: ['admin'],                page: 'page-settings'  },
+    mainsite:  { label: 'Main Site',  enabled: true,  order: 6, access: ['admin','member','view'],   page: 'page-landing'   },
   },
 
   /* ── ROSTER SECTIONS ──────────────────────────

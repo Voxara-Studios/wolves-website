@@ -997,3 +997,126 @@ body::after {
 }
 .ee-img-upload-btn:hover { color: var(--t1); border-color: var(--border2); }
 .ee-img-or { font-size: .75rem; color: var(--t3); white-space: nowrap; }
+
+/* ══════════════════════════════════════
+   LANDING PAGE — EVENTS STRIP
+   ══════════════════════════════════════ */
+.landing-events-strip {
+  background: var(--bg0);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 4rem 3rem;
+}
+.les-header {
+  max-width: 1100px; margin: 0 auto 2.5rem;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  flex-wrap: wrap; gap: 1rem;
+}
+.les-heading-wrap { display: flex; flex-direction: column; gap: .2rem; }
+.les-tag {
+  font-family: 'Oswald', sans-serif; font-size: .68rem; font-weight: 600;
+  letter-spacing: .35em; text-transform: uppercase; color: var(--red);
+  display: flex; align-items: center; gap: .6rem;
+}
+.les-tag::before { content:''; display:block; width:18px; height:1px; background:var(--red); }
+.les-title {
+  font-family: 'Black Ops One', cursive;
+  font-size: clamp(1.6rem, 3vw, 2.2rem); text-transform: uppercase; color: var(--t1);
+}
+.les-view-all {
+  font-family: 'Oswald', sans-serif; font-size: .75rem; font-weight: 600;
+  letter-spacing: .2em; text-transform: uppercase;
+  background: transparent; color: var(--t3);
+  border: 1px solid var(--border); padding: .5rem 1.4rem;
+  cursor: pointer; transition: color .2s, border-color .2s;
+}
+.les-view-all:hover { color: var(--red); border-color: var(--red-border); }
+
+.les-grid {
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+}
+@media (max-width: 900px) { .les-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 560px) { .les-grid { grid-template-columns: 1fr; } }
+
+.les-empty {
+  text-align: center; color: var(--t3); font-family: 'Oswald', sans-serif;
+  font-size: .82rem; letter-spacing: .15em; text-transform: uppercase;
+  padding: 2.5rem; border: 1px solid var(--border);
+  grid-column: 1 / -1;
+}
+
+/* ── Landing event card ── */
+.les-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  overflow: hidden; cursor: pointer;
+  transition: border-color .2s, transform .15s;
+  display: flex; flex-direction: column;
+}
+.les-card:hover { border-color: var(--red-border); transform: translateY(-3px); }
+
+.les-card-img {
+  width: 100%; height: 160px;
+  background-size: cover; background-position: center;
+  background-color: var(--bg3); flex-shrink: 0;
+}
+.les-card-img--empty {
+  display: flex; align-items: center; justify-content: center;
+}
+.les-card-img--empty svg {
+  width: 36px; height: 36px; stroke: var(--t3); fill: none;
+  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+}
+.les-card-body {
+  padding: .9rem 1rem; display: flex; flex-direction: column; gap: .4rem;
+}
+.les-card-title {
+  font-family: 'Oswald', sans-serif; font-size: .95rem; font-weight: 600;
+  letter-spacing: .04em; color: var(--t1); line-height: 1.3;
+}
+.les-card-time {
+  display: flex; align-items: center; gap: .35rem;
+  font-family: 'Oswald', sans-serif; font-size: .72rem; color: var(--t2);
+}
+.les-card-time svg {
+  width: 12px; height: 12px; flex-shrink: 0;
+  stroke: var(--t3); fill: none; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* ══════════════════════════════════════
+   PUBLIC EVENTS PAGE
+   ══════════════════════════════════════ */
+.pub-events-page { min-height: 100vh; padding-top: 60px; /* nav height */ }
+
+.pub-events-hero {
+  position: relative; overflow: hidden;
+  padding: 5rem 3rem 4rem;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; min-height: 280px;
+}
+.pub-events-hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 80% at 50% 60%, rgba(178,7,2,.13) 0%, transparent 65%),
+    repeating-linear-gradient(0deg,   transparent, transparent 72px, rgba(255,255,255,.018) 72px, rgba(255,255,255,.018) 73px),
+    repeating-linear-gradient(90deg,  transparent, transparent 72px, rgba(255,255,255,.018) 72px, rgba(255,255,255,.018) 73px);
+}
+.pub-events-hero-content { position: relative; z-index: 2; }
+.pub-events-title {
+  font-family: 'Black Ops One', cursive;
+  font-size: clamp(2.8rem, 7vw, 5rem); text-transform: uppercase;
+  line-height: .95; color: var(--t1);
+  margin-top: .5rem;
+}
+
+.pub-events-body {
+  max-width: 1100px; margin: 0 auto;
+  padding: 2.5rem 2rem 4rem;
+}
+
+/* Active nav link style */
+.nav-link-active {
+  color: var(--t1) !important; cursor: default;
+  border-bottom: 1px solid var(--red); padding-bottom: 2px;
+}
