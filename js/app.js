@@ -17,37 +17,6 @@ function showPage(id) {
   if (id === 'page-settings') renderSettings();
   if (id === 'page-events')   renderPublicEventsPage();
   if (id === 'page-landing')  renderLandingEvents();
-  if (id === 'page-portal')   renderLogos();
-  setAllNavActive(id);
-}
-
-/* Mark the correct link active across every nav on the page */
-function setAllNavActive(pageId) {
-  const activeKey = {
-    'page-landing':   'home',
-    'page-portal':    'portal',
-    'page-events':    'events',
-    'page-dashboard': 'portal',
-    'page-roster':    'portal',
-    'page-finances':  'portal',
-    'page-inventory': 'portal',
-    'page-settings':  'portal',
-  }[pageId] || null;
-
-  /* Each nav has its own set of link IDs */
-  const navSets = [
-    { home:'nav-home-link',    about:'nav-about-link',    events:'nav-events-link',    portal:'nav-portal-link'    },
-    { home:'ev-home-link',     about:'ev-about-link',     events:'ev-events-link',     portal:'ev-portal-link'     },
-    { home:'portal-home-link', about:'portal-about-link', events:'portal-events-link', portal:'portal-portal-link' },
-  ];
-
-  navSets.forEach(set => {
-    Object.entries(set).forEach(([key, elId]) => {
-      const el = document.getElementById(elId);
-      if (!el) return;
-      el.classList.toggle('nav-link-active', key === activeKey);
-    });
-  });
 }
 
 function scrollToAbout() {
@@ -165,33 +134,44 @@ function renderLanding() {
 }
 
 function updateNav() {
-  const rank     = currentUser?.rank     || '';
-  const roadName = currentUser?.roadName || currentUser?.name || currentUser?.username || '';
-  const welcomeText = currentUser
-    ? (rank ? `${rank}  ${roadName}` : roadName)
-    : '';
+  const loginBtn  = document.getElementById('nav-login-btn');
+  const memberNav = document.getElementById('nav-member-area');
 
-  /* Handle every nav instance on the page */
-  const navInstances = [
-    { loginId: 'nav-login-btn',    welcomeId: 'nav-welcome-text'       },
-    { loginId: 'pub-ev-login-btn', welcomeId: 'ev-nav-welcome-text'    },
-    { loginId: null,               welcomeId: 'portal-welcome-text'    },
-  ];
-
-  navInstances.forEach(({ loginId, welcomeId }) => {
-    const loginBtn  = document.getElementById(loginId);
-    const welcomeEl = document.getElementById(welcomeId);
-    if (currentUser) {
-      if (loginBtn)  loginBtn.style.display = 'none';
-      if (welcomeEl) { welcomeEl.textContent = welcomeText; welcomeEl.style.display = ''; }
-    } else {
-      if (loginBtn)  { loginBtn.style.display = ''; loginBtn.textContent = 'Member Login'; loginBtn.onclick = () => showPage('page-portal'); }
-      if (welcomeEl) { welcomeEl.style.display = 'none'; welcomeEl.textContent = ''; }
-    }
-  });
+  if (currentUser) {
+    const displayName = currentUser.roadName || currentUser.name || currentUser.username;
+    if (loginBtn)  loginBtn.style.display = 'none';
+    /* Show Member Portal nav item for all logged-in users */
+    ['nav-portal-li', 'pub-ev-portal-li'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = '';
+    });
+    /* Replace login button with name + portal button in both navs */
+    ['nav-member-area', 'pub-ev-member-area'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.style.display = 'flex';
+        el.innerHTML = `
+          <span class="nav-member-name">${esc(displayName)}</span>
+          <button class="nav-portal-btn" onclick="goToPortal()">Member Portal</button>
+        `;
+      }
+    });
+    const pubLoginBtn = document.getElementById('pub-ev-login-btn');
+    if (pubLoginBtn) pubLoginBtn.style.display = 'none';
+  } else {
+    if (loginBtn)  loginBtn.style.display = '';
+    ['nav-portal-li', 'pub-ev-portal-li'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    ['nav-member-area', 'pub-ev-member-area'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.style.display = 'none'; el.innerHTML = ''; }
+    });
+    const pubLoginBtn = document.getElementById('pub-ev-login-btn');
+    if (pubLoginBtn) pubLoginBtn.style.display = '';
+  }
 }
-
-/* setNavActive replaced by setAllNavActive */
 
 function goToPortal() {
   if (!currentUser) { showPage('page-portal'); return; }
@@ -367,7 +347,7 @@ function renderSettings() {
       <button class="stab active" onclick="switchStab(this,'stab-club')">Club Info</button>
       <button class="stab" onclick="switchStab(this,'stab-logos')">Logos</button>
       <button class="stab" onclick="switchStab(this,'stab-sections')">Sections</button>
-
+      <button class="stab" onclick="switchStab(this,'stab-modules')">Modules</button>
       <button class="stab" onclick="switchStab(this,'stab-members')">Members</button>
     </div>
 
@@ -415,6 +395,23 @@ function renderSettings() {
       <button class="s-add-btn" onclick="addSection()" style="margin-top:1rem;">+ Add Section</button>
     </div>
 
+    <!-- MODULES -->
+    <div class="stab-panel" id="stab-modules">
+      <p class="s-hint" style="margin-bottom:1.5rem;">Toggle modules on/off.</p>
+      <div class="module-toggle-list">
+        ${Object.entries(CFG.modules).map(([id,m]) => `
+          <div class="mod-row">
+            <label class="s-toggle-wrap">
+              <input type="checkbox" class="s-toggle-input" id="mod-${id}" ${m.enabled?'checked':''}/>
+              <span class="s-toggle-track"><span class="s-toggle-thumb"></span></span>
+            </label>
+            <div class="mod-info">
+              <span class="mod-name">${m.label}</span>
+              <span class="mod-access">Access: ${m.access.join(', ')}</span>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
 
     <!-- MEMBERS -->
     <div class="stab-panel" id="stab-members">
@@ -595,6 +592,12 @@ function saveSettings() {
     const ranks = (document.getElementById(`sec-ranks-${id}`)?.value || '')
       .split('\n').map(r => r.trim()).filter(Boolean);
     return { id, label, order: idx + 1, ranks };
+  });
+
+  /* Modules */
+  Object.keys(CFG.modules).forEach(id => {
+    const cb = document.getElementById(`mod-${id}`);
+    if (cb) CFG.modules[id].enabled = cb.checked;
   });
 
   /* Members */
