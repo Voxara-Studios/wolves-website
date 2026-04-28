@@ -15,8 +15,9 @@ function showPage(id) {
   if (t) { t.classList.add('active'); window.scrollTo(0,0); }
   if (id === 'page-roster')   renderRoster();
   if (id === 'page-settings') renderSettings();
-  if (id === 'page-events')   renderPublicEventsPage();
-  if (id === 'page-landing')  renderLandingEvents();
+  if (id === 'page-events')   { setNavActive('events','ev-events-link'); renderPublicEventsPage(); }
+  if (id === 'page-landing')  { setNavActive('landing','nav-home-link'); renderLandingEvents(); }
+  if (id === 'page-portal')   { renderLogos(); }
 }
 
 function scrollToAbout() {
@@ -134,43 +135,66 @@ function renderLanding() {
 }
 
 function updateNav() {
-  const loginBtn  = document.getElementById('nav-login-btn');
-  const memberNav = document.getElementById('nav-member-area');
+  /* All nav login/welcome button pairs across all pages */
+  const navDefs = [
+    { loginId: 'nav-login-btn',    welcomeId: 'nav-welcome-text'    },
+    { loginId: 'pub-ev-login-btn', welcomeId: 'ev-nav-welcome-text' },
+  ];
 
   if (currentUser) {
-    const displayName = currentUser.roadName || currentUser.name || currentUser.username;
-    if (loginBtn)  loginBtn.style.display = 'none';
-    /* Show Member Portal nav item for all logged-in users */
-    ['nav-portal-li', 'pub-ev-portal-li'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = '';
-    });
-    /* Replace login button with name + portal button in both navs */
-    ['nav-member-area', 'pub-ev-member-area'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.style.display = 'flex';
-        el.innerHTML = `
-          <span class="nav-member-name">${esc(displayName)}</span>
-          <button class="nav-portal-btn" onclick="goToPortal()">Member Portal</button>
-        `;
+    const rank        = currentUser.rank     || '';
+    const roadName    = currentUser.roadName || currentUser.name || currentUser.username;
+    const welcomeText = rank ? `Welcome — ${rank} ${roadName}` : `Welcome — ${roadName}`;
+
+    navDefs.forEach(({ loginId, welcomeId }) => {
+      const loginBtn  = document.getElementById(loginId);
+      const welcomeEl = document.getElementById(welcomeId);
+      if (loginBtn) {
+        /* Transform login button → Member Portal button */
+        loginBtn.textContent = 'Member Portal';
+        loginBtn.onclick     = goToPortal;
+        loginBtn.classList.add('nav-btn-portal');
+      }
+      if (welcomeEl) {
+        welcomeEl.textContent = welcomeText;
+        welcomeEl.style.display = '';
       }
     });
-    const pubLoginBtn = document.getElementById('pub-ev-login-btn');
-    if (pubLoginBtn) pubLoginBtn.style.display = 'none';
+
+    /* Active link highlight: mark Member Portal if on portal page */
+    setNavActive('landing', null);
+    setNavActive('events',  null);
+
   } else {
-    if (loginBtn)  loginBtn.style.display = '';
-    ['nav-portal-li', 'pub-ev-portal-li'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = 'none';
+    navDefs.forEach(({ loginId, welcomeId }) => {
+      const loginBtn  = document.getElementById(loginId);
+      const welcomeEl = document.getElementById(welcomeId);
+      if (loginBtn) {
+        loginBtn.textContent = 'Member Login';
+        loginBtn.onclick     = () => showPage('page-portal');
+        loginBtn.classList.remove('nav-btn-portal');
+      }
+      if (welcomeEl) {
+        welcomeEl.textContent = '';
+        welcomeEl.style.display = 'none';
+      }
     });
-    ['nav-member-area', 'pub-ev-member-area'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) { el.style.display = 'none'; el.innerHTML = ''; }
-    });
-    const pubLoginBtn = document.getElementById('pub-ev-login-btn');
-    if (pubLoginBtn) pubLoginBtn.style.display = '';
   }
+}
+
+/* Set which nav link is highlighted as active */
+function setNavActive(navPrefix, activeId) {
+  const links = {
+    landing: ['nav-home-link', 'nav-about-link', 'nav-events-link'],
+    events:  ['ev-home-link',  'ev-about-link',  'ev-events-link'],
+  };
+  (links[navPrefix] || []).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      if (id === activeId) el.classList.add('nav-link-active');
+      else                 el.classList.remove('nav-link-active');
+    }
+  });
 }
 
 function goToPortal() {
@@ -347,7 +371,7 @@ function renderSettings() {
       <button class="stab active" onclick="switchStab(this,'stab-club')">Club Info</button>
       <button class="stab" onclick="switchStab(this,'stab-logos')">Logos</button>
       <button class="stab" onclick="switchStab(this,'stab-sections')">Sections</button>
-      <button class="stab" onclick="switchStab(this,'stab-modules')">Modules</button>
+
       <button class="stab" onclick="switchStab(this,'stab-members')">Members</button>
     </div>
 
@@ -395,23 +419,6 @@ function renderSettings() {
       <button class="s-add-btn" onclick="addSection()" style="margin-top:1rem;">+ Add Section</button>
     </div>
 
-    <!-- MODULES -->
-    <div class="stab-panel" id="stab-modules">
-      <p class="s-hint" style="margin-bottom:1.5rem;">Toggle modules on/off.</p>
-      <div class="module-toggle-list">
-        ${Object.entries(CFG.modules).map(([id,m]) => `
-          <div class="mod-row">
-            <label class="s-toggle-wrap">
-              <input type="checkbox" class="s-toggle-input" id="mod-${id}" ${m.enabled?'checked':''}/>
-              <span class="s-toggle-track"><span class="s-toggle-thumb"></span></span>
-            </label>
-            <div class="mod-info">
-              <span class="mod-name">${m.label}</span>
-              <span class="mod-access">Access: ${m.access.join(', ')}</span>
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>
 
     <!-- MEMBERS -->
     <div class="stab-panel" id="stab-members">
@@ -592,12 +599,6 @@ function saveSettings() {
     const ranks = (document.getElementById(`sec-ranks-${id}`)?.value || '')
       .split('\n').map(r => r.trim()).filter(Boolean);
     return { id, label, order: idx + 1, ranks };
-  });
-
-  /* Modules */
-  Object.keys(CFG.modules).forEach(id => {
-    const cb = document.getElementById(`mod-${id}`);
-    if (cb) CFG.modules[id].enabled = cb.checked;
   });
 
   /* Members */

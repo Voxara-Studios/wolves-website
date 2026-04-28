@@ -22,16 +22,16 @@
       <div style="width:32px;height:32px;flex-shrink:0;" data-logo-slot="nav"></div>
       <span class="nav-brand-name">Wolves <em>of Mayhem</em></span>
     </div>
-    <ul class="nav-links">
-      <li><a onclick="showPage('page-landing')">Home</a></li>
-      <li><a onclick="showPage('page-landing'); setTimeout(scrollToAbout,250)">About</a></li>
-      <li><a onclick="showPage('page-events')">Events</a></li>
-      <li id="nav-portal-li" style="display:none;">
-        <a onclick="goToPortal()">Member Portal</a>
-      </li>
+    <ul class="nav-links" id="landing-nav-links">
+      <li><a id="nav-home-link"   onclick="showPage('page-landing')">Home</a></li>
+      <li><a id="nav-about-link"  onclick="showPage('page-landing'); setTimeout(scrollToAbout,250)">About</a></li>
+      <li><a id="nav-events-link" onclick="showPage('page-events')">Events</a></li>
     </ul>
-    <button class="nav-login-btn" id="nav-login-btn" onclick="showPage('page-portal')">Member Login</button>
-    <div class="nav-member-area" id="nav-member-area" style="display:none;"></div>
+    <!-- Right side: welcome text (logged in) OR login/portal button -->
+    <div class="nav-right" id="nav-right">
+      <span class="nav-welcome-text" id="nav-welcome-text" style="display:none;"></span>
+      <button class="nav-login-btn" id="nav-login-btn" onclick="showPage('page-portal')">Member Login</button>
+    </div>
   </nav>
 
   <!-- Hero -->
@@ -119,13 +119,29 @@
      PORTAL LOGIN
      ══════════════════════════════════════════ -->
 <div class="page" id="page-portal">
+  <nav class="site-nav" id="portal-nav">
+    <div class="nav-brand" onclick="showPage('page-landing')" role="button" tabindex="0">
+      <div style="width:32px;height:32px;flex-shrink:0;" data-logo-slot="nav"></div>
+      <span class="nav-brand-name">Wolves <em>of Mayhem</em></span>
+    </div>
+    <ul class="nav-links">
+      <li><a onclick="showPage('page-landing')">Home</a></li>
+      <li><a onclick="showPage('page-landing'); setTimeout(scrollToAbout,200)">About</a></li>
+      <li><a onclick="showPage('page-events')">Events</a></li>
+      <li><a class="nav-link-active">Member Portal</a></li>
+    </ul>
+    <div class="nav-right">
+      <!-- empty on portal page — login is the action -->
+    </div>
+  </nav>
+
   <div class="portal-page">
     <div class="portal-bg"></div>
     <div class="portal-card a1">
       <div class="portal-logo">
         <div data-logo-slot="login" style="width:64px;height:64px;margin:0 auto .8rem;"></div>
         <div class="portal-logo-name">Wolves <em>of Mayhem</em></div>
-        <div class="portal-logo-sub">Member Portal</div>
+        <div class="portal-logo-sub">Member Login</div>
       </div>
       <div class="login-field">
         <label class="login-label" for="login-user">Username</label>
@@ -247,19 +263,20 @@
      ══════════════════════════════════════════ -->
 <div class="page" id="page-events">
 
-  <nav class="site-nav">
+  <nav class="site-nav" id="events-nav">
     <div class="nav-brand" onclick="showPage('page-landing')" role="button" tabindex="0">
       <div style="width:32px;height:32px;flex-shrink:0;" data-logo-slot="nav"></div>
       <span class="nav-brand-name">Wolves <em>of Mayhem</em></span>
     </div>
-    <ul class="nav-links">
-      <li><a onclick="showPage('page-landing')">Home</a></li>
-      <li><a onclick="showPage('page-landing'); setTimeout(scrollToAbout,200)">About</a></li>
-      <li><a class="nav-link-active">Events</a></li>
-      <li id="pub-ev-portal-li" style="display:none;"><a onclick="goToPortal()">Member Portal</a></li>
+    <ul class="nav-links" id="events-nav-links">
+      <li><a id="ev-home-link"   onclick="showPage('page-landing')">Home</a></li>
+      <li><a id="ev-about-link"  onclick="showPage('page-landing'); setTimeout(scrollToAbout,200)">About</a></li>
+      <li><a id="ev-events-link" class="nav-link-active" onclick="showPage('page-events')">Events</a></li>
     </ul>
-    <button class="nav-login-btn" id="pub-ev-login-btn" onclick="showPage('page-portal')">Member Login</button>
-    <div class="nav-member-area" id="pub-ev-member-area" style="display:none;"></div>
+    <div class="nav-right" id="ev-nav-right">
+      <span class="nav-welcome-text" id="ev-nav-welcome-text" style="display:none;"></span>
+      <button class="nav-login-btn" id="pub-ev-login-btn" onclick="showPage('page-portal')">Member Login</button>
+    </div>
   </nav>
 
   <div class="pub-events-page">

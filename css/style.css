@@ -1120,3 +1120,69 @@ body::after {
   color: var(--t1) !important; cursor: default;
   border-bottom: 1px solid var(--red); padding-bottom: 2px;
 }
+
+/* ══════════════════════════════════════
+   V9 NAV & PORTAL UPDATES
+   ══════════════════════════════════════ */
+
+/* ── Nav right side ── */
+.nav-right {
+  display: flex; align-items: center; gap: .75rem; flex-shrink: 0;
+}
+
+/* Welcome text — "Welcome — Rank RoadName" */
+.nav-welcome-text {
+  font-family: 'Oswald', sans-serif;
+  font-size: .72rem; font-weight: 500;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--t2); white-space: nowrap;
+}
+.nav-welcome-text strong { color: var(--red); }
+
+/* Login / Member Portal button — same style, different label */
+.nav-login-btn {
+  font-family: 'Oswald', sans-serif; font-size: .78rem; font-weight: 600;
+  letter-spacing: .18em; text-transform: uppercase;
+  background: var(--red); color: #fff; border: none;
+  padding: .45rem 1.4rem; cursor: pointer;
+  transition: background .2s;
+  white-space: nowrap;
+}
+.nav-login-btn:hover { background: var(--red-dark); }
+
+/* When it becomes the portal button, slightly different feel */
+.nav-btn-portal {
+  background: transparent !important;
+  color: var(--t2) !important;
+  border: 1px solid var(--border2) !important;
+}
+.nav-btn-portal:hover {
+  color: var(--t1) !important;
+  border-color: var(--red-border) !important;
+  background: var(--red-faint) !important;
+}
+
+/* ── Active nav link state (all pages) ── */
+.nav-links a.nav-link-active {
+  color: var(--t1) !important;
+  border-bottom: 2px solid var(--red);
+  padding-bottom: 2px;
+  cursor: default;
+}
+
+/* ── Portal page — now has nav bar, needs padding-top ── */
+#page-portal .portal-page {
+  padding-top: 60px; /* clear the fixed nav */
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Remove the old standalone portal-bg full-page style conflict */
+#page-portal .portal-bg {
+  position: fixed; /* cover full page behind card */
+}
+
+/* ── Responsive nav-right ── */
+@media (max-width: 768px) {
+  .nav-welcome-text { display: none; }
+}
