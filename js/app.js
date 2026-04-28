@@ -17,6 +17,7 @@ function showPage(id) {
   if (id === 'page-settings') renderSettings();
   if (id === 'page-events')   renderPublicEventsPage();
   if (id === 'page-landing')  renderLandingEvents();
+  if (id === 'page-about')    { renderAboutPage(); updateNav(); }
 }
 
 function scrollToAbout() {
@@ -53,12 +54,15 @@ function renderLogos() {
   /* Each [data-logo-slot] gets the right image for its slot */
   document.querySelectorAll('[data-logo-slot]').forEach(el => {
     const slot = el.dataset.logoSlot;
-    const src  = logoSrc(slot);
+    /* about-page slot uses the 'about' logo config key */
+    const cfgKey = slot === 'about-page' ? 'about' : slot;
+    const src  = `logos/${CFG.club.logos[cfgKey] || availableLogos[0]?.file || ''}`;
     const isHero = slot === 'hero';
-    const size   = isHero ? '240px' : '100%';
-    const radius = isHero ? '8px'   : '50%';
+    const isAboutPage = slot === 'about-page';
+    const size   = isHero ? '240px' : isAboutPage ? '160px' : '100%';
+    const radius = (isHero || isAboutPage) ? '8px' : '50%';
     const editAttr = (currentUser?.access === 'admin')
-      ? `onclick="openLogoPicker('${slot}')" title="Click to change logo" style="cursor:pointer;"`
+      ? `onclick="openLogoPicker('${cfgKey}')" title="Click to change logo" style="cursor:pointer;"`
       : '';
     el.innerHTML = `<img src="${src}" alt="WOM Logo"
       style="width:${size};height:${size};object-fit:contain;border-radius:${radius};"
@@ -123,11 +127,14 @@ function selectLogo(slot, file) {
    LANDING / NAV
    ══════════════════════════════════════════ */
 function renderLanding() {
-  document.querySelectorAll('[data-name]').forEach(el     => el.textContent = CFG.club.name);
-  document.querySelectorAll('[data-motto]').forEach(el    => el.textContent = CFG.club.motto);
-  document.querySelectorAll('[data-location]').forEach(el => el.textContent = CFG.club.location);
-  document.querySelectorAll('[data-founded]').forEach(el  => el.textContent = CFG.club.founded);
-  document.querySelectorAll('[data-about]').forEach(el    => el.textContent = CFG.club.about);
+  document.querySelectorAll('[data-name]').forEach(el      => el.textContent = CFG.club.name);
+  document.querySelectorAll('[data-motto]').forEach(el     => el.textContent = CFG.club.motto);
+  document.querySelectorAll('[data-location]').forEach(el  => el.textContent = CFG.club.location);
+  document.querySelectorAll('[data-founded]').forEach(el   => el.textContent = CFG.club.founded);
+  document.querySelectorAll('[data-about]').forEach(el     => el.textContent = CFG.club.about);
+  document.querySelectorAll('[data-history]').forEach(el   => el.textContent = CFG.club.history   || el.textContent);
+  document.querySelectorAll('[data-mission]').forEach(el   => el.textContent = CFG.club.mission   || el.textContent);
+  document.querySelectorAll('[data-community]').forEach(el => el.textContent = CFG.club.community || el.textContent);
   renderLogos();
   updateNav();
   renderLandingEvents();
@@ -141,12 +148,12 @@ function updateNav() {
     const displayName = currentUser.roadName || currentUser.name || currentUser.username;
     if (loginBtn)  loginBtn.style.display = 'none';
     /* Show Member Portal nav item for all logged-in users */
-    ['nav-portal-li', 'pub-ev-portal-li'].forEach(id => {
+    ['nav-portal-li', 'pub-ev-portal-li', 'about-portal-li'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = '';
     });
-    /* Replace login button with name + portal button in both navs */
-    ['nav-member-area', 'pub-ev-member-area'].forEach(id => {
+    /* Replace login button with name + portal button in all navs */
+    ['nav-member-area', 'pub-ev-member-area', 'about-member-area'].forEach(id => {
       const el = document.getElementById(id);
       if (el) {
         el.style.display = 'flex';
@@ -156,20 +163,24 @@ function updateNav() {
         `;
       }
     });
-    const pubLoginBtn = document.getElementById('pub-ev-login-btn');
-    if (pubLoginBtn) pubLoginBtn.style.display = 'none';
-  } else {
-    if (loginBtn)  loginBtn.style.display = '';
-    ['nav-portal-li', 'pub-ev-portal-li'].forEach(id => {
+    ['pub-ev-login-btn', 'about-login-btn'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
-    ['nav-member-area', 'pub-ev-member-area'].forEach(id => {
+  } else {
+    if (loginBtn)  loginBtn.style.display = '';
+    ['nav-portal-li', 'pub-ev-portal-li', 'about-portal-li'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    ['nav-member-area', 'pub-ev-member-area', 'about-member-area'].forEach(id => {
       const el = document.getElementById(id);
       if (el) { el.style.display = 'none'; el.innerHTML = ''; }
     });
-    const pubLoginBtn = document.getElementById('pub-ev-login-btn');
-    if (pubLoginBtn) pubLoginBtn.style.display = '';
+    ['pub-ev-login-btn', 'about-login-btn'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = '';
+    });
   }
 }
 
@@ -358,8 +369,20 @@ function renderSettings() {
       ${sRow('Founded',    'si-founded',  CFG.club.founded)}
       ${sRow('Location',   'si-location', CFG.club.location)}
       <div class="s-row s-row--col">
-        <label class="s-label">About Blurb</label>
+        <label class="s-label">About Blurb <span style="font-size:.65rem;color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0;">(short version on landing page)</span></label>
         <textarea class="s-input s-textarea" id="si-about">${esc(CFG.club.about)}</textarea>
+      </div>
+      <div class="s-row s-row--col">
+        <label class="s-label">Club History <span style="font-size:.65rem;color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0;">(About Us page)</span></label>
+        <textarea class="s-input s-textarea" id="si-history">${esc(CFG.club.history||'')}</textarea>
+      </div>
+      <div class="s-row s-row--col">
+        <label class="s-label">Our Mission <span style="font-size:.65rem;color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0;">(About Us page)</span></label>
+        <textarea class="s-input s-textarea" id="si-mission">${esc(CFG.club.mission||'')}</textarea>
+      </div>
+      <div class="s-row s-row--col">
+        <label class="s-label">Community Involvement <span style="font-size:.65rem;color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0;">(About Us page)</span></label>
+        <textarea class="s-input s-textarea" id="si-community">${esc(CFG.club.community||'')}</textarea>
       </div>
     </div>
 
@@ -761,3 +784,18 @@ function renderPublicEventsPage() {
 }
 
 /* updatePublicEventsNav merged into updateNav */
+
+/* ══════════════════════════════════════════
+   ABOUT PAGE
+   ══════════════════════════════════════════ */
+function renderAboutPage() {
+  /* Populate all data-* attributes on the about page */
+  document.querySelectorAll('[data-name]').forEach(el      => el.textContent = CFG.club.name);
+  document.querySelectorAll('[data-motto]').forEach(el     => el.textContent = CFG.club.motto);
+  document.querySelectorAll('[data-location]').forEach(el  => el.textContent = CFG.club.location);
+  document.querySelectorAll('[data-founded]').forEach(el   => el.textContent = CFG.club.founded);
+  document.querySelectorAll('[data-history]').forEach(el   => { if (CFG.club.history)   el.textContent = CFG.club.history; });
+  document.querySelectorAll('[data-mission]').forEach(el   => { if (CFG.club.mission)   el.textContent = CFG.club.mission; });
+  document.querySelectorAll('[data-community]').forEach(el => { if (CFG.club.community) el.textContent = CFG.club.community; });
+  renderLogos();
+}

@@ -10,6 +10,9 @@ const DEFAULT_CONFIG = {
     founded:    '2022',
     location:   'Los Santos, San Andreas',
     about:      'The Wolves of Mayhem MC is a 1% outlaw motorcycle club based in Los Santos, San Andreas. Founded on the principles of brotherhood, loyalty, and riding free — we live by our own code. We are not a club you join. We are a family you earn.',
+    history:    'The Wolves of Mayhem MC was founded in 2022 by a small group of riders who shared a vision of true brotherhood on the streets of Los Santos. What began as a handful of bikes rolling through the city has grown into one of the most respected clubs in San Andreas. We have ridden through good times and bad, forged our identity through loyalty and steel, and built a legacy that speaks for itself on every road we travel.',
+    mission:    'Our mission is simple — ride hard, stand together, protect our own. We are bound by a code of loyalty, respect, and brotherhood that goes beyond the road. Every patch earned is a testament to commitment and trust. We hold each other accountable, we have each other\'s backs, and we never leave a brother or sister behind.',
+    community:  'The Wolves of Mayhem are more than an MC — we are part of the fabric of Los Santos. We participate in community runs, charity events, and local gatherings that bring the city together. We believe that strength comes from community, and we use ours to give back to the streets that shaped us.',
     /* Logo slots — each key maps to a position on the site.
        Value is the filename from logos/ folder.             */
     logos: {
