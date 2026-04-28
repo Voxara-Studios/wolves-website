@@ -17,25 +17,20 @@
      ══════════════════════════════════════════ -->
 <div class="page active" id="page-landing">
 
-  <nav class="site-nav">
+  <nav class="site-nav" id="landing-nav">
     <div class="nav-brand" onclick="showPage('page-landing')" role="button" tabindex="0">
-      <!-- nav logo slot -->
       <div style="width:32px;height:32px;flex-shrink:0;" data-logo-slot="nav"></div>
       <span class="nav-brand-name">Wolves <em>of Mayhem</em></span>
     </div>
-
     <ul class="nav-links">
-      <li><a onclick="scrollToAbout()">About</a></li>
+      <li><a onclick="showPage('page-landing')">Home</a></li>
+      <li><a onclick="showPage('page-landing'); setTimeout(scrollToAbout,250)">About</a></li>
       <li><a onclick="showPage('page-events')">Events</a></li>
       <li id="nav-portal-li" style="display:none;">
         <a onclick="goToPortal()">Member Portal</a>
       </li>
     </ul>
-
-    <!-- Logged-out state -->
     <button class="nav-login-btn" id="nav-login-btn" onclick="showPage('page-portal')">Member Login</button>
-
-    <!-- Logged-in state — injected by updateNav() -->
     <div class="nav-member-area" id="nav-member-area" style="display:none;"></div>
   </nav>
 
@@ -87,7 +82,7 @@
         <p class="les-tag">Upcoming</p>
         <h2 class="les-title">Events</h2>
       </div>
-      <button class="les-view-all" onclick="showPage('page-public-events')">View All &rarr;</button>
+      <button class="les-view-all" onclick="showPage('page-events')">View All &rarr;</button>
     </div>
     <div class="les-grid" id="landing-events-grid"></div>
   </section>
@@ -251,24 +246,6 @@
      EVENTS
      ══════════════════════════════════════════ -->
 <div class="page" id="page-events">
-  <div class="inner-header">
-    <div class="inner-logo">Wolves <em>of Mayhem</em></div>
-    <div class="inner-nav">
-      <button class="btn-back" onclick="eventsBack()">&#8592; Back</button>
-      <button class="btn-logout-sm" id="events-logout-btn" onclick="handleLogout()" style="display:none;">Logout</button>
-    </div>
-  </div>
-  <div class="inner-content">
-    <p class="page-tag">Calendar</p>
-    <h1 class="page-title">Events</h1>
-    <div id="events-container"></div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════
-     PUBLIC EVENTS PAGE (with landing nav)
-     ══════════════════════════════════════════ -->
-<div class="page" id="page-public-events">
 
   <nav class="site-nav">
     <div class="nav-brand" onclick="showPage('page-landing')" role="button" tabindex="0">
@@ -345,11 +322,6 @@
 
 <script>
   function rosterBack() {
-    if (currentUser?.access === 'admin') showPage('page-dashboard');
-    else { showPage('page-landing'); }
-  }
-
-  function eventsBack() {
     if (currentUser?.access === 'admin') showPage('page-dashboard');
     else showPage('page-landing');
   }

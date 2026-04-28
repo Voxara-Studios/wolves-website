@@ -13,15 +13,10 @@ function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const t = document.getElementById(id);
   if (t) { t.classList.add('active'); window.scrollTo(0,0); }
-  if (id === 'page-roster')         renderRoster();
-  if (id === 'page-settings')       renderSettings();
-  if (id === 'page-events') {
-    const logoutBtn = document.getElementById('events-logout-btn');
-    if (logoutBtn) logoutBtn.style.display = currentUser ? '' : 'none';
-    renderEventsPage();
-  }
-  if (id === 'page-public-events')  renderPublicEventsPage();
-  if (id === 'page-landing')        renderLandingEvents();
+  if (id === 'page-roster')   renderRoster();
+  if (id === 'page-settings') renderSettings();
+  if (id === 'page-events')   renderPublicEventsPage();
+  if (id === 'page-landing')  renderLandingEvents();
 }
 
 function scrollToAbout() {
@@ -144,24 +139,37 @@ function updateNav() {
 
   if (currentUser) {
     const displayName = currentUser.roadName || currentUser.name || currentUser.username;
-    if (loginBtn)  loginBtn.style.display  = 'none';
-    const portalLi = document.getElementById('nav-portal-li');
-    if (portalLi) portalLi.style.display = '';
-    if (memberNav) {
-      memberNav.style.display = 'flex';
-      memberNav.innerHTML = `
-        <span class="nav-member-name">${esc(displayName)}</span>
-        <button class="nav-portal-btn" onclick="goToPortal()">Member Portal</button>
-      `;
-    }
+    if (loginBtn)  loginBtn.style.display = 'none';
+    /* Show Member Portal nav item for all logged-in users */
+    ['nav-portal-li', 'pub-ev-portal-li'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = '';
+    });
+    /* Replace login button with name + portal button in both navs */
+    ['nav-member-area', 'pub-ev-member-area'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.style.display = 'flex';
+        el.innerHTML = `
+          <span class="nav-member-name">${esc(displayName)}</span>
+          <button class="nav-portal-btn" onclick="goToPortal()">Member Portal</button>
+        `;
+      }
+    });
+    const pubLoginBtn = document.getElementById('pub-ev-login-btn');
+    if (pubLoginBtn) pubLoginBtn.style.display = 'none';
   } else {
-    if (loginBtn)  loginBtn.style.display  = '';
-    const portalLi = document.getElementById('nav-portal-li');
-    if (portalLi) portalLi.style.display = 'none';
-    if (memberNav) {
-      memberNav.style.display = 'none';
-      memberNav.innerHTML = '';
-    }
+    if (loginBtn)  loginBtn.style.display = '';
+    ['nav-portal-li', 'pub-ev-portal-li'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    ['nav-member-area', 'pub-ev-member-area'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.style.display = 'none'; el.innerHTML = ''; }
+    });
+    const pubLoginBtn = document.getElementById('pub-ev-login-btn');
+    if (pubLoginBtn) pubLoginBtn.style.display = '';
   }
 }
 
@@ -704,8 +712,8 @@ function renderPublicEventsPage() {
   const container = document.getElementById('pub-events-container');
   if (!container) return;
 
-  /* Sync the public events nav state */
-  updatePublicEventsNav();
+  /* Sync all navs */
+  updateNav();
 
   const isLoggedIn = !!currentUser;
   const isAdmin    = currentUser?.access === 'admin';
@@ -752,26 +760,4 @@ function renderPublicEventsPage() {
   container.innerHTML = html;
 }
 
-/* Keep the public events page nav in sync with login state */
-function updatePublicEventsNav() {
-  const loginBtn  = document.getElementById('pub-ev-login-btn');
-  const memberArea = document.getElementById('pub-ev-member-area');
-  const portalLi  = document.getElementById('pub-ev-portal-li');
-
-  if (currentUser) {
-    const displayName = currentUser.roadName || currentUser.name || currentUser.username;
-    if (loginBtn)   loginBtn.style.display   = 'none';
-    if (portalLi)   portalLi.style.display   = '';
-    if (memberArea) {
-      memberArea.style.display = 'flex';
-      memberArea.innerHTML = `
-        <span class="nav-member-name">${esc(displayName)}</span>
-        <button class="nav-portal-btn" onclick="goToPortal()">Member Portal</button>
-      `;
-    }
-  } else {
-    if (loginBtn)   loginBtn.style.display   = '';
-    if (portalLi)   portalLi.style.display   = 'none';
-    if (memberArea) { memberArea.style.display = 'none'; memberArea.innerHTML = ''; }
-  }
-}
+/* updatePublicEventsNav merged into updateNav */
