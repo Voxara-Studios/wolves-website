@@ -15,9 +15,39 @@ function showPage(id) {
   if (t) { t.classList.add('active'); window.scrollTo(0,0); }
   if (id === 'page-roster')   renderRoster();
   if (id === 'page-settings') renderSettings();
-  if (id === 'page-events')   { setNavActive('events','ev-events-link'); renderPublicEventsPage(); }
-  if (id === 'page-landing')  { setNavActive('landing','nav-home-link'); renderLandingEvents(); }
-  if (id === 'page-portal')   { renderLogos(); }
+  if (id === 'page-events')   renderPublicEventsPage();
+  if (id === 'page-landing')  renderLandingEvents();
+  if (id === 'page-portal')   renderLogos();
+  setAllNavActive(id);
+}
+
+/* Mark the correct link active across every nav on the page */
+function setAllNavActive(pageId) {
+  const activeKey = {
+    'page-landing':   'home',
+    'page-portal':    'portal',
+    'page-events':    'events',
+    'page-dashboard': 'portal',
+    'page-roster':    'portal',
+    'page-finances':  'portal',
+    'page-inventory': 'portal',
+    'page-settings':  'portal',
+  }[pageId] || null;
+
+  /* Each nav has its own set of link IDs */
+  const navSets = [
+    { home:'nav-home-link',    about:'nav-about-link',    events:'nav-events-link',    portal:'nav-portal-link'    },
+    { home:'ev-home-link',     about:'ev-about-link',     events:'ev-events-link',     portal:'ev-portal-link'     },
+    { home:'portal-home-link', about:'portal-about-link', events:'portal-events-link', portal:'portal-portal-link' },
+  ];
+
+  navSets.forEach(set => {
+    Object.entries(set).forEach(([key, elId]) => {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      el.classList.toggle('nav-link-active', key === activeKey);
+    });
+  });
 }
 
 function scrollToAbout() {
@@ -135,67 +165,33 @@ function renderLanding() {
 }
 
 function updateNav() {
-  /* All nav login/welcome button pairs across all pages */
-  const navDefs = [
-    { loginId: 'nav-login-btn',    welcomeId: 'nav-welcome-text'    },
-    { loginId: 'pub-ev-login-btn', welcomeId: 'ev-nav-welcome-text' },
+  const rank     = currentUser?.rank     || '';
+  const roadName = currentUser?.roadName || currentUser?.name || currentUser?.username || '';
+  const welcomeText = currentUser
+    ? (rank ? `${rank}  ${roadName}` : roadName)
+    : '';
+
+  /* Handle every nav instance on the page */
+  const navInstances = [
+    { loginId: 'nav-login-btn',    welcomeId: 'nav-welcome-text'       },
+    { loginId: 'pub-ev-login-btn', welcomeId: 'ev-nav-welcome-text'    },
+    { loginId: null,               welcomeId: 'portal-welcome-text'    },
   ];
 
-  if (currentUser) {
-    const rank        = currentUser.rank     || '';
-    const roadName    = currentUser.roadName || currentUser.name || currentUser.username;
-    const welcomeText = rank ? `Welcome — ${rank} ${roadName}` : `Welcome — ${roadName}`;
-
-    navDefs.forEach(({ loginId, welcomeId }) => {
-      const loginBtn  = document.getElementById(loginId);
-      const welcomeEl = document.getElementById(welcomeId);
-      if (loginBtn) {
-        /* Transform login button → Member Portal button */
-        loginBtn.textContent = 'Member Portal';
-        loginBtn.onclick     = goToPortal;
-        loginBtn.classList.add('nav-btn-portal');
-      }
-      if (welcomeEl) {
-        welcomeEl.textContent = welcomeText;
-        welcomeEl.style.display = '';
-      }
-    });
-
-    /* Active link highlight: mark Member Portal if on portal page */
-    setNavActive('landing', null);
-    setNavActive('events',  null);
-
-  } else {
-    navDefs.forEach(({ loginId, welcomeId }) => {
-      const loginBtn  = document.getElementById(loginId);
-      const welcomeEl = document.getElementById(welcomeId);
-      if (loginBtn) {
-        loginBtn.textContent = 'Member Login';
-        loginBtn.onclick     = () => showPage('page-portal');
-        loginBtn.classList.remove('nav-btn-portal');
-      }
-      if (welcomeEl) {
-        welcomeEl.textContent = '';
-        welcomeEl.style.display = 'none';
-      }
-    });
-  }
-}
-
-/* Set which nav link is highlighted as active */
-function setNavActive(navPrefix, activeId) {
-  const links = {
-    landing: ['nav-home-link', 'nav-about-link', 'nav-events-link'],
-    events:  ['ev-home-link',  'ev-about-link',  'ev-events-link'],
-  };
-  (links[navPrefix] || []).forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      if (id === activeId) el.classList.add('nav-link-active');
-      else                 el.classList.remove('nav-link-active');
+  navInstances.forEach(({ loginId, welcomeId }) => {
+    const loginBtn  = document.getElementById(loginId);
+    const welcomeEl = document.getElementById(welcomeId);
+    if (currentUser) {
+      if (loginBtn)  loginBtn.style.display = 'none';
+      if (welcomeEl) { welcomeEl.textContent = welcomeText; welcomeEl.style.display = ''; }
+    } else {
+      if (loginBtn)  { loginBtn.style.display = ''; loginBtn.textContent = 'Member Login'; loginBtn.onclick = () => showPage('page-portal'); }
+      if (welcomeEl) { welcomeEl.style.display = 'none'; welcomeEl.textContent = ''; }
     }
   });
 }
+
+/* setNavActive replaced by setAllNavActive */
 
 function goToPortal() {
   if (!currentUser) { showPage('page-portal'); return; }

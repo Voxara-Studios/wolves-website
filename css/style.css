@@ -1186,3 +1186,58 @@ body::after {
 @media (max-width: 768px) {
   .nav-welcome-text { display: none; }
 }
+
+/* ══════════════════════════════════════
+   V9 — NAV & PORTAL UPDATES
+   ══════════════════════════════════════ */
+
+/* Welcome text in nav (replaces login button when logged in) */
+.nav-welcome-text {
+  font-family: 'Oswald', sans-serif;
+  font-size: .78rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--t2); white-space: nowrap;
+}
+/* Rank part muted, road name highlighted */
+.nav-welcome-text strong { color: var(--red); font-weight: 700; }
+
+/* Nav active link — red bottom border matching Events screenshot */
+.nav-link-active {
+  color: var(--t1) !important;
+  border-bottom: 2px solid var(--red) !important;
+  padding-bottom: 2px;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ── Redesigned portal page ── */
+.portal-full-page { min-height: calc(100vh - 60px); display: flex; flex-direction: column; }
+
+.portal-form-wrap {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 3rem 2rem;
+  background: var(--bg0);
+  position: relative;
+}
+.portal-form-wrap::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 55% 55% at 50% 30%, rgba(178,7,2,.08) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.portal-form-card {
+  width: 100%; max-width: 400px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--red);
+  padding: 2.5rem 2rem;
+  position: relative; z-index: 1;
+}
+
+.portal-form-logo { text-align: center; margin-bottom: 2rem; }
+.portal-form-logo [data-logo-slot] img {
+  width: 72px; height: 72px; object-fit: contain; display: block; margin: 0 auto;
+}
+
+/* Remove old floating card portal styles */
+.portal-page { display: none; }

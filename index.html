@@ -23,9 +23,10 @@
       <span class="nav-brand-name">Wolves <em>of Mayhem</em></span>
     </div>
     <ul class="nav-links" id="landing-nav-links">
-      <li><a id="nav-home-link"   onclick="showPage('page-landing')">Home</a></li>
-      <li><a id="nav-about-link"  onclick="showPage('page-landing'); setTimeout(scrollToAbout,250)">About</a></li>
+      <li><a id="nav-home-link"   class="nav-link-active" onclick="showPage('page-landing')">Home</a></li>
+      <li><a id="nav-about-link"  onclick="scrollToAbout()">About</a></li>
       <li><a id="nav-events-link" onclick="showPage('page-events')">Events</a></li>
+      <li style="display:none;"><a id="nav-portal-link" onclick="goToPortal()">Portal</a></li>
     </ul>
     <!-- Right side: welcome text (logged in) OR login/portal button -->
     <div class="nav-right" id="nav-right">
@@ -119,46 +120,57 @@
      PORTAL LOGIN
      ══════════════════════════════════════════ -->
 <div class="page" id="page-portal">
+
   <nav class="site-nav" id="portal-nav">
     <div class="nav-brand" onclick="showPage('page-landing')" role="button" tabindex="0">
       <div style="width:32px;height:32px;flex-shrink:0;" data-logo-slot="nav"></div>
       <span class="nav-brand-name">Wolves <em>of Mayhem</em></span>
     </div>
     <ul class="nav-links">
-      <li><a onclick="showPage('page-landing')">Home</a></li>
-      <li><a onclick="showPage('page-landing'); setTimeout(scrollToAbout,200)">About</a></li>
-      <li><a onclick="showPage('page-events')">Events</a></li>
-      <li><a class="nav-link-active">Member Portal</a></li>
+      <li><a id="portal-home-link"   onclick="showPage('page-landing')">Home</a></li>
+      <li><a id="portal-about-link"  onclick="showPage('page-landing'); setTimeout(scrollToAbout,250)">About</a></li>
+      <li><a id="portal-events-link" onclick="showPage('page-events')">Events</a></li>
+      <li><a id="portal-portal-link" class="nav-link-active">Member Portal</a></li>
     </ul>
-    <div class="nav-right">
-      <!-- empty on portal page — login is the action -->
+    <div class="nav-right" id="portal-nav-right">
+      <span class="nav-welcome-text" id="portal-welcome-text" style="display:none;"></span>
     </div>
   </nav>
 
-  <div class="portal-page">
-    <div class="portal-bg"></div>
-    <div class="portal-card a1">
-      <div class="portal-logo">
-        <div data-logo-slot="login" style="width:64px;height:64px;margin:0 auto .8rem;"></div>
-        <div class="portal-logo-name">Wolves <em>of Mayhem</em></div>
-        <div class="portal-logo-sub">Member Login</div>
+  <!-- Portal hero matching events page style -->
+  <div class="portal-full-page">
+    <div class="pub-events-hero">
+      <div class="pub-events-hero-bg"></div>
+      <div class="pub-events-hero-content">
+        <p class="hero-rocker" style="position:relative;z-index:2;">Members Only</p>
+        <h1 class="pub-events-title">Member Portal</h1>
       </div>
-      <div class="login-field">
-        <label class="login-label" for="login-user">Username</label>
-        <input class="login-input" type="text" id="login-user"
-               placeholder="Enter username" autocomplete="username"
-               autocapitalize="none" spellcheck="false" />
+    </div>
+
+    <div class="portal-form-wrap">
+      <div class="portal-form-card">
+        <div class="portal-form-logo">
+          <div data-logo-slot="login" style="width:72px;height:72px;margin:0 auto 1rem;"></div>
+          <div class="portal-logo-name">Wolves <em>of Mayhem</em></div>
+          <div class="portal-logo-sub">Enter your credentials</div>
+        </div>
+        <div class="login-field">
+          <label class="login-label" for="login-user">Username</label>
+          <input class="login-input" type="text" id="login-user"
+                 placeholder="Enter username" autocomplete="username"
+                 autocapitalize="none" spellcheck="false" />
+        </div>
+        <div class="login-field">
+          <label class="login-label" for="login-pass">Password</label>
+          <input class="login-input" type="password" id="login-pass"
+                 placeholder="Enter password" autocomplete="current-password" />
+        </div>
+        <button class="login-submit" onclick="handleLogin()">Enter the Clubhouse</button>
+        <div class="login-err" id="login-err" role="alert">Invalid credentials. Ride denied.</div>
       </div>
-      <div class="login-field">
-        <label class="login-label" for="login-pass">Password</label>
-        <input class="login-input" type="password" id="login-pass"
-               placeholder="Enter password" autocomplete="current-password" />
-      </div>
-      <button class="login-submit" onclick="handleLogin()">Enter the Clubhouse</button>
-      <div class="login-err" id="login-err" role="alert">Invalid credentials. Ride denied.</div>
-      <button class="login-back" onclick="showPage('page-landing')">&#8592; Back to main page</button>
     </div>
   </div>
+
 </div>
 
 
@@ -269,9 +281,10 @@
       <span class="nav-brand-name">Wolves <em>of Mayhem</em></span>
     </div>
     <ul class="nav-links" id="events-nav-links">
-      <li><a id="ev-home-link"   onclick="showPage('page-landing')">Home</a></li>
-      <li><a id="ev-about-link"  onclick="showPage('page-landing'); setTimeout(scrollToAbout,200)">About</a></li>
-      <li><a id="ev-events-link" class="nav-link-active" onclick="showPage('page-events')">Events</a></li>
+      <li><a id="ev-home-link"    onclick="showPage('page-landing')">Home</a></li>
+      <li><a id="ev-about-link"   onclick="showPage('page-landing'); setTimeout(scrollToAbout,250)">About</a></li>
+      <li><a id="ev-events-link"  class="nav-link-active">Events</a></li>
+      <li style="display:none;"><a id="ev-portal-link" onclick="goToPortal()">Portal</a></li>
     </ul>
     <div class="nav-right" id="ev-nav-right">
       <span class="nav-welcome-text" id="ev-nav-welcome-text" style="display:none;"></span>
