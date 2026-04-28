@@ -13,6 +13,8 @@ function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const t = document.getElementById(id);
   if (t) { t.classList.add('active'); window.scrollTo(0,0); }
+  /* Set home nav active only when on landing page */
+  setNavHomeActive(id === 'page-landing');
   if (id === 'page-roster')   renderRoster();
   if (id === 'page-settings') renderSettings();
   if (id === 'page-events')   renderPublicEventsPage();
@@ -140,48 +142,38 @@ function renderLanding() {
   renderLandingEvents();
 }
 
-function updateNav() {
-  const loginBtn  = document.getElementById('nav-login-btn');
-  const memberNav = document.getElementById('nav-member-area');
+/* navBtnClick — routes to portal or dashboard depending on login state */
+function navBtnClick() {
+  if (currentUser) goToPortal();
+  else showPage('page-portal');
+}
 
-  if (currentUser) {
-    const displayName = currentUser.roadName || currentUser.name || currentUser.username;
-    if (loginBtn)  loginBtn.style.display = 'none';
-    /* Show Member Portal nav item for all logged-in users */
-    ['nav-portal-li', 'pub-ev-portal-li', 'about-portal-li'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = '';
-    });
-    /* Replace login button with name + portal button in all navs */
-    ['nav-member-area', 'pub-ev-member-area', 'about-member-area'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.style.display = 'flex';
-        el.innerHTML = `
-          <span class="nav-member-name">${esc(displayName)}</span>
-          <button class="nav-portal-btn" onclick="goToPortal()">Member Portal</button>
-        `;
-      }
-    });
-    ['pub-ev-login-btn', 'about-login-btn'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = 'none';
-    });
-  } else {
-    if (loginBtn)  loginBtn.style.display = '';
-    ['nav-portal-li', 'pub-ev-portal-li', 'about-portal-li'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = 'none';
-    });
-    ['nav-member-area', 'pub-ev-member-area', 'about-member-area'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) { el.style.display = 'none'; el.innerHTML = ''; }
-    });
-    ['pub-ev-login-btn', 'about-login-btn'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = '';
-    });
+function updateNav() {
+  const loggedIn = !!currentUser;
+  const label    = loggedIn ? 'Member Portal' : 'Member Login';
+  /* Update all nav login/portal buttons across every page */
+  ['nav-login-btn', 'about-login-btn', 'pub-ev-login-btn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = label;
+    el.classList.toggle('is-portal', loggedIn);
+  });
+  /* Update hero button on landing page */
+  const heroBtn = document.getElementById('hero-login-btn');
+  if (heroBtn) {
+    heroBtn.textContent = label;
+    /* Hero primary button keeps its red style even as portal — no toggle needed */
   }
+  /* Render footer discord buttons */
+  renderFooterDiscord();
+}
+
+/* Bold + underline the Home link when on the landing page */
+function setNavHomeActive(active) {
+  const el = document.getElementById('nav-home-link');
+  if (!el) return;
+  if (active) el.classList.add('nav-link-active');
+  else        el.classList.remove('nav-link-active');
 }
 
 function goToPortal() {
@@ -368,6 +360,8 @@ function renderSettings() {
       ${sRow('Motto',      'si-motto',    CFG.club.motto)}
       ${sRow('Founded',    'si-founded',  CFG.club.founded)}
       ${sRow('Location',   'si-location', CFG.club.location)}
+      ${sRow('Main Discord URL',  'si-discord-main', CFG.club.discordMain||'')}
+      ${sRow('Club Discord URL',  'si-discord-club', CFG.club.discordClub||'')}
       <div class="s-row s-row--col">
         <label class="s-label">About Blurb <span style="font-size:.65rem;color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0;">(short version on landing page)</span></label>
         <textarea class="s-input s-textarea" id="si-about">${esc(CFG.club.about)}</textarea>
@@ -598,7 +592,9 @@ function saveSettings() {
   CFG.club.name     = g('si-name')     || CFG.club.name;
   CFG.club.motto    = g('si-motto')    || CFG.club.motto;
   CFG.club.founded  = g('si-founded')  || CFG.club.founded;
-  CFG.club.location = g('si-location') || CFG.club.location;
+  CFG.club.location    = g('si-location')    || CFG.club.location;
+  CFG.club.discordMain = g('si-discord-main');
+  CFG.club.discordClub = g('si-discord-club');
   CFG.club.about    = document.getElementById('si-about')?.value || CFG.club.about;
 
   /* Logo slots */
@@ -798,4 +794,26 @@ function renderAboutPage() {
   document.querySelectorAll('[data-mission]').forEach(el   => { if (CFG.club.mission)   el.textContent = CFG.club.mission; });
   document.querySelectorAll('[data-community]').forEach(el => { if (CFG.club.community) el.textContent = CFG.club.community; });
   renderLogos();
+}
+
+/* ══════════════════════════════════════════
+   FOOTER DISCORD BUTTONS
+   ══════════════════════════════════════════ */
+function renderFooterDiscord() {
+  const el = document.getElementById('footer-discord');
+  if (!el) return;
+  const main = CFG.club.discordMain || '';
+  const club = CFG.club.discordClub || '';
+  if (!main && !club) { el.style.display = 'none'; return; }
+  el.style.display = 'flex';
+  el.innerHTML = `
+    ${main ? `<a href="${escAttr(main)}" target="_blank" rel="noopener" class="footer-discord-btn">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.03.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+      Join Our Discord
+    </a>` : ''}
+    ${club ? `<a href="${escAttr(club)}" target="_blank" rel="noopener" class="footer-discord-btn footer-discord-btn--club">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.03.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+      Club Discord
+    </a>` : ''}
+  `;
 }

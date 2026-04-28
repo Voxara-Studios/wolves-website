@@ -23,15 +23,11 @@
       <span class="nav-brand-name">Wolves <em>of Mayhem</em></span>
     </div>
     <ul class="nav-links">
-      <li><a onclick="showPage('page-landing')">Home</a></li>
+      <li><a id="nav-home-link" onclick="showPage('page-landing')">Home</a></li>
       <li><a onclick="showPage('page-about')">About</a></li>
       <li><a onclick="showPage('page-events')">Events</a></li>
-      <li id="nav-portal-li" style="display:none;">
-        <a onclick="goToPortal()">Member Portal</a>
-      </li>
     </ul>
-    <button class="nav-login-btn" id="nav-login-btn" onclick="showPage('page-portal')">Member Login</button>
-    <div class="nav-member-area" id="nav-member-area" style="display:none;"></div>
+    <button class="nav-login-btn" id="nav-login-btn" onclick="navBtnClick()">Member Login</button>
   </nav>
 
   <!-- Hero -->
@@ -68,8 +64,8 @@
       </div>
 
       <div class="hero-btns a5">
-        <button class="btn-hero-primary" onclick="showPage('page-portal')">Member Login</button>
-        <button class="btn-hero-ghost"   onclick="showPage('page-about')">About the Club</button>
+        <button class="btn-hero-primary" id="hero-login-btn" onclick="navBtnClick()">Member Login</button>
+        <button class="btn-hero-ghost"   onclick="scrollToAbout()">About the Club</button>
       </div>
 
     </div>
@@ -109,8 +105,13 @@
 
   <!-- Footer -->
   <footer class="site-footer">
-    <div class="footer-brand">Wolves <em>of Mayhem</em> MC</div>
-    <div class="footer-copy">Los Santos, San Andreas &mdash; Members Only Portal</div>
+    <div class="footer-left">
+      <div class="footer-brand">Wolves <em>of Mayhem</em> MC</div>
+      <div class="footer-copy">Los Santos, San Andreas &mdash; Members Only Portal</div>
+    </div>
+    <div class="footer-discord" id="footer-discord">
+      <!-- rendered by renderFooterDiscord() -->
+    </div>
   </footer>
 
 </div><!-- /page-landing -->
@@ -132,12 +133,8 @@
       <li><a onclick="showPage('page-landing')">Home</a></li>
       <li><a class="nav-link-active">About</a></li>
       <li><a onclick="showPage('page-events')">Events</a></li>
-      <li id="about-portal-li" style="display:none;">
-        <a onclick="goToPortal()">Member Portal</a>
-      </li>
     </ul>
-    <button class="nav-login-btn" id="about-login-btn" onclick="showPage('page-portal')">Member Login</button>
-    <div class="nav-member-area" id="about-member-area" style="display:none;"></div>
+    <button class="nav-login-btn" id="about-login-btn" onclick="navBtnClick()">Member Login</button>
   </nav>
 
   <!-- Page Hero Banner -->
@@ -369,10 +366,8 @@
       <li><a onclick="showPage('page-landing')">Home</a></li>
       <li><a onclick="showPage('page-about')">About</a></li>
       <li><a class="nav-link-active">Events</a></li>
-      <li id="pub-ev-portal-li" style="display:none;"><a onclick="goToPortal()">Member Portal</a></li>
     </ul>
-    <button class="nav-login-btn" id="pub-ev-login-btn" onclick="showPage('page-portal')">Member Login</button>
-    <div class="nav-member-area" id="pub-ev-member-area" style="display:none;"></div>
+    <button class="nav-login-btn" id="pub-ev-login-btn" onclick="navBtnClick()">Member Login</button>
   </nav>
 
   <div class="pub-events-page">
