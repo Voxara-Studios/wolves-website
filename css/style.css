@@ -63,10 +63,9 @@ body::after {
 .site-nav {
   position: fixed; top:0; left:0; right:0; z-index:200;
   height: 60px;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: space-between;
   padding: 0 2.5rem;
   background: rgba(10,10,10,0.93);
   border-bottom: 1px solid var(--border);
@@ -83,7 +82,11 @@ body::after {
   color: var(--t1);
 }
 .nav-brand-name em { color: var(--red); font-style: normal; }
-.nav-links { display: flex; gap: 2rem; list-style: none; justify-content: center; }
+.nav-links {
+  display: flex; gap: 2rem; list-style: none;
+  position: absolute;
+  left: 50%; transform: translateX(-50%);
+}
 .nav-links a {
   font-family: 'Oswald', sans-serif;
   font-size: .78rem; font-weight: 500; letter-spacing: .18em; text-transform: uppercase;
@@ -1332,8 +1335,10 @@ body::after {
 /* ── Nav right group (welcome text + button) ── */
 .nav-right-group {
   display: flex; align-items: center; gap: .75rem;
-  min-width: 0;          /* allow shrinking */
-  justify-content: flex-end;
+  min-width: 0;
+  max-width: 320px;        /* cap so it never reaches the center links */
+  margin-left: auto;       /* push to right */
+  overflow: hidden;
 }
 
 /* Welcome text */
@@ -1346,7 +1351,8 @@ body::after {
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
-  max-width: 220px;   /* soft cap — shrinks further if needed */
+  flex: 1;             /* take available space, shrink before button */
+  flex-shrink: 1;
 }
 .nav-welcome-text .welcome-name {
   color: var(--red);
