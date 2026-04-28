@@ -13,13 +13,12 @@ function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const t = document.getElementById(id);
   if (t) { t.classList.add('active'); window.scrollTo(0,0); }
-  /* Set home nav active only when on landing page */
   setNavHomeActive(id === 'page-landing');
-  if (id === 'page-roster')   renderRoster();
   if (id === 'page-settings') renderSettings();
   if (id === 'page-events')   renderPublicEventsPage();
   if (id === 'page-landing')  renderLandingEvents();
   if (id === 'page-about')    { renderAboutPage(); updateNav(); }
+  if (id === 'page-portal')   renderPortalPage();
 }
 
 function scrollToAbout() {
@@ -162,9 +161,10 @@ function updateNav() {
 
   /* Update all nav buttons + welcome text across every page */
   const navDefs = [
-    { btnId: 'nav-login-btn',    welcomeId: 'nav-welcome-text'   },
-    { btnId: 'about-login-btn',  welcomeId: 'about-welcome-text' },
-    { btnId: 'pub-ev-login-btn', welcomeId: 'ev-welcome-text'    },
+    { btnId: 'nav-login-btn',    welcomeId: 'nav-welcome-text'    },
+    { btnId: 'about-login-btn',  welcomeId: 'about-welcome-text'  },
+    { btnId: 'pub-ev-login-btn', welcomeId: 'ev-welcome-text'     },
+    { btnId: 'portal-nav-btn',   welcomeId: 'portal-welcome-text' },
   ];
   navDefs.forEach(({ btnId, welcomeId }) => {
     const btn = document.getElementById(btnId);
@@ -196,13 +196,7 @@ function setNavHomeActive(active) {
 }
 
 function goToPortal() {
-  if (!currentUser) { showPage('page-portal'); return; }
-  if (currentUser.access === 'admin') {
-    showPage('page-dashboard');
-    renderDashboard();
-  } else {
-    showPage('page-roster');
-  }
+  showPage('page-portal');
 }
 
 /* ══════════════════════════════════════════
@@ -222,14 +216,8 @@ function handleLogin() {
   err.classList.remove('show');
   currentUser = member;
   updateNav();
-  renderLogos(); /* re-render so admin edit cursors appear */
-
-  if (member.access === 'admin') {
-    showPage('page-dashboard');
-    renderDashboard();
-  } else {
-    showPage('page-roster');
-  }
+  renderLogos();
+  showPage('page-portal');
 }
 
 function handleLogout() {
@@ -238,17 +226,50 @@ function handleLogout() {
   document.getElementById('login-pass').value = '';
   updateNav();
   renderLogos();
+  /* Reset portal to login view */
+  const loginView  = document.getElementById('portal-login-view');
+  const memberView = document.getElementById('portal-member-view');
+  if (loginView)  loginView.style.display  = '';
+  if (memberView) memberView.style.display = 'none';
   showPage('page-landing');
 }
 
 /* ══════════════════════════════════════════
-   DASHBOARD
+   PORTAL PAGE — main hub
    ══════════════════════════════════════════ */
-function renderDashboard() {
-  const el = document.getElementById('dash-name');
-  if (el) el.textContent = currentUser?.roadName || currentUser?.name || '—';
+function renderPortalPage() {
+  const loginView  = document.getElementById('portal-login-view');
+  const memberView = document.getElementById('portal-member-view');
 
-  const grid = document.getElementById('dash-grid');
+  if (!currentUser) {
+    /* Show login, hide member area */
+    if (loginView)  loginView.style.display  = '';
+    if (memberView) memberView.style.display = 'none';
+    renderLogos();
+    updateNav();
+    return;
+  }
+
+  /* Logged in — show member area */
+  if (loginView)  loginView.style.display  = 'none';
+  if (memberView) memberView.style.display = '';
+
+  /* Update hero title with road name or full name */
+  const heroTitle = document.getElementById('portal-hero-title');
+  if (heroTitle) {
+    const name = currentUser.roadName || currentUser.name || currentUser.username;
+    heroTitle.textContent = name + ''s Clubhouse';
+  }
+
+  renderPortalTiles();
+  closePortalPanel();
+  renderLogos();
+  updateNav();
+}
+
+/* Render the module tile grid */
+function renderPortalTiles() {
+  const grid = document.getElementById('portal-tile-grid');
   if (!grid) return;
 
   const icons = {
@@ -261,19 +282,94 @@ function renderDashboard() {
   };
 
   const mods = Object.entries(CFG.modules)
-    .sort((a,b) => a[1].order - b[1].order)
-    .filter(([,m]) => m.enabled);
+    .sort((a,b) => a[1].order - b[1].order);
 
   grid.innerHTML = mods.map(([id, m]) => {
     const hasAccess = m.access.includes(currentUser.access);
+    /* Main Site tile — navigate away instead of opening panel */
+    const isExternal = id === 'mainsite';
+    const clickFn = !hasAccess
+      ? ''
+      : isExternal
+        ? `onclick="showPage('page-landing')"`
+        : `onclick="openPortalPanel('${id}')"`;
+
     return `
-      <div class="dash-tile ${hasAccess?'':'locked'}"
-           ${hasAccess ? `onclick="showPage('${m.page}')"` : `title="Access restricted"`}>
-        <span class="tile-icon">${icons[id]||icons.settings}</span>
+      <div class="dash-tile ${hasAccess ? '' : 'locked'}" ${clickFn}
+           ${!hasAccess ? 'title="Access restricted"' : ''}>
+        <span class="tile-icon">${icons[id] || icons.settings}</span>
         <span class="tile-label">${m.label}</span>
-        ${!hasAccess?`<span class="tile-lock"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>`:''}
+        ${!hasAccess ? `<span class="tile-lock"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>` : ''}
       </div>`;
   }).join('');
+}
+
+/* ── Accordion panel ── */
+function openPortalPanel(moduleId) {
+  const accordion = document.getElementById('portal-accordion');
+  const titleEl   = document.getElementById('portal-accordion-title');
+  const bodyEl    = document.getElementById('portal-accordion-body');
+  if (!accordion || !titleEl || !bodyEl) return;
+
+  /* Highlight the active tile */
+  document.querySelectorAll('#portal-tile-grid .dash-tile').forEach(t => t.classList.remove('tile-active'));
+  const tiles = document.querySelectorAll('#portal-tile-grid .dash-tile');
+  const modKeys = Object.keys(CFG.modules).sort((a,b) => CFG.modules[a].order - CFG.modules[b].order);
+  const idx = modKeys.indexOf(moduleId);
+  if (idx !== -1 && tiles[idx]) tiles[idx].classList.add('tile-active');
+
+  titleEl.textContent = CFG.modules[moduleId]?.label || moduleId;
+  bodyEl.innerHTML    = getPortalPanelContent(moduleId);
+  accordion.style.display = '';
+
+  /* Smooth scroll to accordion */
+  setTimeout(() => accordion.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+
+  /* Render any dynamic content */
+  if (moduleId === 'roster')   renderRoster();
+  if (moduleId === 'settings') renderSettings();
+}
+
+function closePortalPanel() {
+  const accordion = document.getElementById('portal-accordion');
+  if (accordion) accordion.style.display = 'none';
+  document.querySelectorAll('#portal-tile-grid .dash-tile').forEach(t => t.classList.remove('tile-active'));
+}
+
+/* Return HTML content for each module panel */
+function getPortalPanelContent(moduleId) {
+  switch (moduleId) {
+    case 'roster':
+      return `
+        <div class="roster-meta">
+          <div class="roster-count-badge">Members: <span id="roster-count">0</span></div>
+        </div>
+        <div class="table-wrap">
+          <table class="roster-table">
+            <thead><tr>
+              <th>Rank</th><th>Name</th><th>Road Name</th>
+              <th>Discord</th><th>Discord ID</th><th>CID</th>
+              <th>Join Date</th><th>Time in Club</th>
+            </tr></thead>
+            <tbody id="roster-tbody"></tbody>
+          </table>
+        </div>`;
+
+    case 'finances':
+      return `<div class="placeholder-box">Finances module coming soon.<br>Club treasury, dues tracking, and expenses will live here.</div>`;
+
+    case 'inventory':
+      return `<div class="placeholder-box">Inventory module coming soon.<br>Gear, merchandise, and equipment tracking will live here.</div>`;
+
+    case 'events':
+      return `<div class="placeholder-box">Use the Events page in the nav bar to view and manage events.</div>`;
+
+    case 'settings':
+      return `<div id="settings-body" style="margin-top:1rem;"></div>`;
+
+    default:
+      return `<div class="placeholder-box">Module coming soon.</div>`;
+  }
 }
 
 /* ══════════════════════════════════════════
