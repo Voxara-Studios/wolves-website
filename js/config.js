@@ -13,9 +13,13 @@ const DEFAULT_CONFIG = {
     history:    'The Wolves of Mayhem MC was founded in 2022 by a small group of riders who shared a vision of true brotherhood on the streets of Los Santos. What began as a handful of bikes rolling through the city has grown into one of the most respected clubs in San Andreas. We have ridden through good times and bad, forged our identity through loyalty and steel, and built a legacy that speaks for itself on every road we travel.',
     mission:    'Our mission is simple — ride hard, stand together, protect our own. We are bound by a code of loyalty, respect, and brotherhood that goes beyond the road. Every patch earned is a testament to commitment and trust. We hold each other accountable, we have each other\'s backs, and we never leave a brother or sister behind.',
     community:  'The Wolves of Mayhem are more than an MC — we are part of the fabric of Los Santos. We participate in community runs, charity events, and local gatherings that bring the city together. We believe that strength comes from community, and we use ours to give back to the streets that shaped us.',
-    /* Discord links — leave empty string to hide footer buttons */
-    discordMain: '',   // Main/public Discord server invite URL
-    discordClub: '',   // Club members Discord invite URL
+    /* Discord buttons — leave URL empty to hide the button */
+    discordMain:       '',                // Main Discord invite URL
+    discordMainLabel:  'Join Immense Today!',  // Button label
+    discordMainColor:  '#ff44d4',         // Highlight/hover colour
+    discordClub:       '',                // Club Discord invite URL
+    discordClubLabel:  'Join Our Club',   // Button label
+    discordClubColor:  '#b20702',         // Highlight/hover colour (default red)
     /* Logo slots — each key maps to a position on the site.
        Value is the filename from logos/ folder.             */
     logos: {

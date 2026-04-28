@@ -1321,3 +1321,40 @@ body::after {
   border-color: var(--red-border);
   background: var(--red-faint);
 }
+
+/* ══════════════════════════════════════
+   V11.2 QOL UPDATES
+   ══════════════════════════════════════ */
+
+/* ── Nav right group (welcome text + button) ── */
+.nav-right-group {
+  display: flex; align-items: center; gap: .75rem; flex-shrink: 0;
+}
+
+/* Welcome text */
+.nav-welcome-text {
+  font-family: 'Oswald', sans-serif;
+  font-size: .72rem; font-weight: 500;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--t2); white-space: nowrap;
+}
+
+/* ── Footer discord btn — CSS variable hover ── */
+.footer-discord-btn {
+  --btn-hover-color: #5865f2; /* overridden inline per button */
+}
+.footer-discord-btn:hover {
+  color: var(--btn-hover-color) !important;
+  border-color: color-mix(in srgb, var(--btn-hover-color) 50%, transparent) !important;
+  background: color-mix(in srgb, var(--btn-hover-color) 10%, transparent) !important;
+}
+/* Fallback for browsers that don't support color-mix */
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+  .footer-discord-btn:hover {
+    border-color: rgba(128,128,128,.4) !important;
+    background: rgba(128,128,128,.08) !important;
+  }
+}
+
+/* ── Remove old hardcoded club hover (now handled by CSS var) ── */
+.footer-discord-btn--club { /* kept for backwards compat but hover overridden above */ }

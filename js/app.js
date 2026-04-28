@@ -151,19 +151,38 @@ function navBtnClick() {
 function updateNav() {
   const loggedIn = !!currentUser;
   const label    = loggedIn ? 'Member Portal' : 'Member Login';
-  /* Update all nav login/portal buttons across every page */
-  ['nav-login-btn', 'about-login-btn', 'pub-ev-login-btn'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.textContent = label;
-    el.classList.toggle('is-portal', loggedIn);
+
+  /* Build welcome string: "Welcome, Rank RoadName" (or Full Name if no road name) */
+  let welcomeText = '';
+  if (loggedIn) {
+    const nameDisplay = currentUser.roadName || currentUser.name || currentUser.username;
+    const rank        = currentUser.rank ? currentUser.rank + ' ' : '';
+    welcomeText = `Welcome, ${rank}${nameDisplay}`;
+  }
+
+  /* Update all nav login/portal buttons and welcome text across every page */
+  const navDefs = [
+    { btnId: 'nav-login-btn',    welcomeId: 'nav-welcome-text'   },
+    { btnId: 'about-login-btn',  welcomeId: 'about-welcome-text' },
+    { btnId: 'pub-ev-login-btn', welcomeId: 'ev-welcome-text'    },
+  ];
+  navDefs.forEach(({ btnId, welcomeId }) => {
+    const btn = document.getElementById(btnId);
+    const wel = document.getElementById(welcomeId);
+    if (btn) {
+      btn.textContent = label;
+      btn.classList.toggle('is-portal', loggedIn);
+    }
+    if (wel) {
+      wel.textContent    = welcomeText;
+      wel.style.display  = loggedIn ? '' : 'none';
+    }
   });
+
   /* Update hero button on landing page */
   const heroBtn = document.getElementById('hero-login-btn');
-  if (heroBtn) {
-    heroBtn.textContent = label;
-    /* Hero primary button keeps its red style even as portal — no toggle needed */
-  }
+  if (heroBtn) heroBtn.textContent = label;
+
   /* Render footer discord buttons */
   renderFooterDiscord();
 }
@@ -360,8 +379,24 @@ function renderSettings() {
       ${sRow('Motto',      'si-motto',    CFG.club.motto)}
       ${sRow('Founded',    'si-founded',  CFG.club.founded)}
       ${sRow('Location',   'si-location', CFG.club.location)}
-      ${sRow('Main Discord URL',  'si-discord-main', CFG.club.discordMain||'')}
-      ${sRow('Club Discord URL',  'si-discord-club', CFG.club.discordClub||'')}
+      <div class="s-row s-row--col" style="gap:.5rem;margin-bottom:1.25rem;">
+        <label class="s-label">Main Discord Button</label>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+          <input class="s-input" id="si-discord-main"       type="url"  value="${esc(CFG.club.discordMain||'')}"      placeholder="https://discord.gg/..." style="flex:2;min-width:200px;" />
+          <input class="s-input" id="si-discord-main-label" type="text" value="${esc(CFG.club.discordMainLabel||'Join Immense Today!')}" placeholder="Button label" style="flex:1;min-width:140px;" />
+          <input class="s-input" id="si-discord-main-color" type="color" value="${esc(CFG.club.discordMainColor||'#ff44d4')}" style="width:44px;padding:2px 4px;flex-shrink:0;" title="Hover colour" />
+        </div>
+        <p class="s-hint">Leave URL empty to hide this button.</p>
+      </div>
+      <div class="s-row s-row--col" style="gap:.5rem;margin-bottom:1.25rem;">
+        <label class="s-label">Club Discord Button</label>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+          <input class="s-input" id="si-discord-club"       type="url"  value="${esc(CFG.club.discordClub||'')}"      placeholder="https://discord.gg/..." style="flex:2;min-width:200px;" />
+          <input class="s-input" id="si-discord-club-label" type="text" value="${esc(CFG.club.discordClubLabel||'Join Our Club')}"   placeholder="Button label" style="flex:1;min-width:140px;" />
+          <input class="s-input" id="si-discord-club-color" type="color" value="${esc(CFG.club.discordClubColor||'#b20702')}" style="width:44px;padding:2px 4px;flex-shrink:0;" title="Hover colour" />
+        </div>
+        <p class="s-hint">Leave URL empty to hide this button.</p>
+      </div>
       <div class="s-row s-row--col">
         <label class="s-label">About Blurb <span style="font-size:.65rem;color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0;">(short version on landing page)</span></label>
         <textarea class="s-input s-textarea" id="si-about">${esc(CFG.club.about)}</textarea>
@@ -552,7 +587,7 @@ function memberRow(m, i) {
         <button class="medit-del" onclick="document.getElementById('medit-${i}').remove()" title="Remove">&#10005;</button>
       </div>
       <div class="medit-grid">
-        <div class="medit-field"><label>Display Name</label><input class="s-input" id="m-name-${i}"      value="${esc(m.name||'')}"/></div>
+        <div class="medit-field"><label>Full Name</label><input class="s-input" id="m-name-${i}"      value="${esc(m.name||'')}"/></div>
         <div class="medit-field"><label>Road Name</label><input class="s-input" id="m-roadname-${i}"     value="${esc(m.roadName||'')}"/></div>
         <div class="medit-field">
           <label>Rank</label>
@@ -593,8 +628,12 @@ function saveSettings() {
   CFG.club.motto    = g('si-motto')    || CFG.club.motto;
   CFG.club.founded  = g('si-founded')  || CFG.club.founded;
   CFG.club.location    = g('si-location')    || CFG.club.location;
-  CFG.club.discordMain = g('si-discord-main');
-  CFG.club.discordClub = g('si-discord-club');
+  CFG.club.discordMain      = g('si-discord-main');
+  CFG.club.discordMainLabel = g('si-discord-main-label') || CFG.club.discordMainLabel;
+  CFG.club.discordMainColor = g('si-discord-main-color') || CFG.club.discordMainColor;
+  CFG.club.discordClub      = g('si-discord-club');
+  CFG.club.discordClubLabel = g('si-discord-club-label') || CFG.club.discordClubLabel;
+  CFG.club.discordClubColor = g('si-discord-club-color') || CFG.club.discordClubColor;
   CFG.club.about    = document.getElementById('si-about')?.value || CFG.club.about;
 
   /* Logo slots */
@@ -802,18 +841,29 @@ function renderAboutPage() {
 function renderFooterDiscord() {
   const el = document.getElementById('footer-discord');
   if (!el) return;
-  const main = CFG.club.discordMain || '';
-  const club = CFG.club.discordClub || '';
-  if (!main && !club) { el.style.display = 'none'; return; }
+
+  const mainUrl   = CFG.club.discordMain      || '';
+  const mainLabel = CFG.club.discordMainLabel || 'Join Our Discord';
+  const mainColor = CFG.club.discordMainColor || '#5865f2';
+  const clubUrl   = CFG.club.discordClub      || '';
+  const clubLabel = CFG.club.discordClubLabel || 'Join Our Club';
+  const clubColor = CFG.club.discordClubColor || '#b20702';
+
+  if (!mainUrl && !clubUrl) { el.style.display = 'none'; return; }
   el.style.display = 'flex';
+
+  const discordSvg = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.03.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>`;
+
   el.innerHTML = `
-    ${main ? `<a href="${escAttr(main)}" target="_blank" rel="noopener" class="footer-discord-btn">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.03.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
-      Join Our Discord
-    </a>` : ''}
-    ${club ? `<a href="${escAttr(club)}" target="_blank" rel="noopener" class="footer-discord-btn footer-discord-btn--club">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.03.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
-      Club Discord
-    </a>` : ''}
+    ${mainUrl ? `<a href="${escAttr(mainUrl)}" target="_blank" rel="noopener"
+        class="footer-discord-btn"
+        style="--btn-hover-color:${escAttr(mainColor)};">
+        ${discordSvg} ${esc(mainLabel)}
+      </a>` : ''}
+    ${clubUrl ? `<a href="${escAttr(clubUrl)}" target="_blank" rel="noopener"
+        class="footer-discord-btn footer-discord-btn--custom"
+        style="--btn-hover-color:${escAttr(clubColor)};">
+        ${discordSvg} ${esc(clubLabel)}
+      </a>` : ''}
   `;
 }
