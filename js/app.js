@@ -152,15 +152,15 @@ function updateNav() {
   const loggedIn = !!currentUser;
   const label    = loggedIn ? 'Member Portal' : 'Member Login';
 
-  /* Build welcome string: "Welcome, Rank RoadName" (or Full Name if no road name) */
-  let welcomeText = '';
+  /* Build welcome HTML: "Welcome, <span red>Rank Name</span>" */
+  let welcomeHtml = '';
   if (loggedIn) {
     const nameDisplay = currentUser.roadName || currentUser.name || currentUser.username;
     const rank        = currentUser.rank ? currentUser.rank + ' ' : '';
-    welcomeText = `Welcome, ${rank}${nameDisplay}`;
+    welcomeHtml = `Welcome, <span class="welcome-name">${esc(rank)}${esc(nameDisplay)}</span>`;
   }
 
-  /* Update all nav login/portal buttons and welcome text across every page */
+  /* Update all nav buttons + welcome text across every page */
   const navDefs = [
     { btnId: 'nav-login-btn',    welcomeId: 'nav-welcome-text'   },
     { btnId: 'about-login-btn',  welcomeId: 'about-welcome-text' },
@@ -174,8 +174,8 @@ function updateNav() {
       btn.classList.toggle('is-portal', loggedIn);
     }
     if (wel) {
-      wel.textContent    = welcomeText;
-      wel.style.display  = loggedIn ? '' : 'none';
+      wel.innerHTML     = welcomeHtml;
+      wel.style.display = loggedIn ? '' : 'none';
     }
   });
 
@@ -384,7 +384,14 @@ function renderSettings() {
         <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
           <input class="s-input" id="si-discord-main"       type="url"  value="${esc(CFG.club.discordMain||'')}"      placeholder="https://discord.gg/..." style="flex:2;min-width:200px;" />
           <input class="s-input" id="si-discord-main-label" type="text" value="${esc(CFG.club.discordMainLabel||'Join Immense Today!')}" placeholder="Button label" style="flex:1;min-width:140px;" />
-          <input class="s-input" id="si-discord-main-color" type="color" value="${esc(CFG.club.discordMainColor||'#ff44d4')}" style="width:44px;padding:2px 4px;flex-shrink:0;" title="Hover colour" />
+          <div style="display:flex;align-items:center;gap:.35rem;flex-shrink:0;" title="Hover colour">
+            <input type="color" id="si-discord-main-color-swatch" value="${esc(CFG.club.discordMainColor||'#ff44d4')}"
+                   style="width:36px;height:36px;padding:2px 3px;border:1px solid var(--border);background:var(--bg1);cursor:pointer;flex-shrink:0;"
+                   oninput="syncHexInput('si-discord-main-color','si-discord-main-color-swatch')" />
+            <input class="s-input" id="si-discord-main-color" type="text" value="${esc(CFG.club.discordMainColor||'#ff44d4')}"
+                   placeholder="#ff44d4" maxlength="7" style="width:80px;font-family:monospace;"
+                   oninput="syncColorSwatch('si-discord-main-color','si-discord-main-color-swatch')" />
+          </div>
         </div>
         <p class="s-hint">Leave URL empty to hide this button.</p>
       </div>
@@ -393,7 +400,14 @@ function renderSettings() {
         <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
           <input class="s-input" id="si-discord-club"       type="url"  value="${esc(CFG.club.discordClub||'')}"      placeholder="https://discord.gg/..." style="flex:2;min-width:200px;" />
           <input class="s-input" id="si-discord-club-label" type="text" value="${esc(CFG.club.discordClubLabel||'Join Our Club')}"   placeholder="Button label" style="flex:1;min-width:140px;" />
-          <input class="s-input" id="si-discord-club-color" type="color" value="${esc(CFG.club.discordClubColor||'#b20702')}" style="width:44px;padding:2px 4px;flex-shrink:0;" title="Hover colour" />
+          <div style="display:flex;align-items:center;gap:.35rem;flex-shrink:0;" title="Hover colour">
+            <input type="color" id="si-discord-club-color-swatch" value="${esc(CFG.club.discordClubColor||'#b20702')}"
+                   style="width:36px;height:36px;padding:2px 3px;border:1px solid var(--border);background:var(--bg1);cursor:pointer;flex-shrink:0;"
+                   oninput="syncHexInput('si-discord-club-color','si-discord-club-color-swatch')" />
+            <input class="s-input" id="si-discord-club-color" type="text" value="${esc(CFG.club.discordClubColor||'#b20702')}"
+                   placeholder="#b20702" maxlength="7" style="width:80px;font-family:monospace;"
+                   oninput="syncColorSwatch('si-discord-club-color','si-discord-club-color-swatch')" />
+          </div>
         </div>
         <p class="s-hint">Leave URL empty to hide this button.</p>
       </div>
@@ -866,4 +880,18 @@ function renderFooterDiscord() {
         ${discordSvg} ${esc(clubLabel)}
       </a>` : ''}
   `;
+}
+
+/* ── Color swatch ↔ hex input sync ── */
+function syncHexInput(textId, swatchId) {
+  const swatch = document.getElementById(swatchId);
+  const text   = document.getElementById(textId);
+  if (swatch && text) text.value = swatch.value;
+}
+function syncColorSwatch(textId, swatchId) {
+  const swatch = document.getElementById(swatchId);
+  const text   = document.getElementById(textId);
+  if (swatch && text && /^#[0-9a-fA-F]{6}$/.test(text.value)) {
+    swatch.value = text.value;
+  }
 }
