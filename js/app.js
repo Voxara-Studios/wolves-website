@@ -267,73 +267,71 @@ function renderPortalPage() {
   updateNav();
 }
 
-/* Render the module tile grid */
+/* Render the module tab bar (excludes events + mainsite) */
 function renderPortalTiles() {
   const grid = document.getElementById('portal-tile-grid');
   if (!grid) return;
+
+  const EXCLUDE = ['events', 'mainsite'];
 
   const icons = {
     roster:    `<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
     finances:  `<svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
     inventory: `<svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
-    events:    `<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
     settings:  `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
-    mainsite:  `<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
   };
 
   const mods = Object.entries(CFG.modules)
-    .sort((a,b) => a[1].order - b[1].order);
+    .sort((a,b) => a[1].order - b[1].order)
+    .filter(([id]) => !EXCLUDE.includes(id));
 
   grid.innerHTML = mods.map(([id, m]) => {
     const hasAccess = m.access.includes(currentUser.access);
-    /* Main Site tile — navigate away instead of opening panel */
-    const isExternal = id === 'mainsite';
-    const clickFn = !hasAccess
-      ? ''
-      : isExternal
-        ? `onclick="showPage('page-landing')"`
-        : `onclick="openPortalPanel('${id}')"`;
-
+    const clickAttr = hasAccess ? `onclick="openPortalPanel('${id}')"` : `title="Access restricted"`;
     return `
-      <div class="dash-tile ${hasAccess ? '' : 'locked'}" ${clickFn}
-           ${!hasAccess ? 'title="Access restricted"' : ''}>
-        <span class="tile-icon">${icons[id] || icons.settings}</span>
-        <span class="tile-label">${m.label}</span>
-        ${!hasAccess ? `<span class="tile-lock"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>` : ''}
-      </div>`;
+      <button class="portal-tab-btn ${hasAccess ? '' : 'portal-tab-locked'}" id="ptab-${id}" ${clickAttr}>
+        <span class="ptab-icon">${icons[id] || icons.settings}</span>
+        <span class="ptab-label">${m.label}</span>
+        ${!hasAccess ? `<span class="ptab-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>` : ''}
+      </button>`;
   }).join('');
 }
 
 /* ── Accordion panel ── */
 function openPortalPanel(moduleId) {
-  const accordion = document.getElementById('portal-accordion');
-  const titleEl   = document.getElementById('portal-accordion-title');
-  const bodyEl    = document.getElementById('portal-accordion-body');
-  if (!accordion || !titleEl || !bodyEl) return;
+  const panel  = document.getElementById('portal-panel');
+  const bodyEl = document.getElementById('portal-panel-body');
+  if (!panel || !bodyEl) return;
 
-  /* Highlight the active tile */
-  document.querySelectorAll('#portal-tile-grid .dash-tile').forEach(t => t.classList.remove('tile-active'));
-  const tiles = document.querySelectorAll('#portal-tile-grid .dash-tile');
-  const modKeys = Object.keys(CFG.modules).sort((a,b) => CFG.modules[a].order - CFG.modules[b].order);
-  const idx = modKeys.indexOf(moduleId);
-  if (idx !== -1 && tiles[idx]) tiles[idx].classList.add('tile-active');
+  /* Highlight active tab, clear others */
+  document.querySelectorAll('.portal-tab-btn').forEach(b => b.classList.remove('ptab-active'));
+  const activeBtn = document.getElementById('ptab-' + moduleId);
+  if (activeBtn) activeBtn.classList.add('ptab-active');
 
-  titleEl.textContent = CFG.modules[moduleId]?.label || moduleId;
-  bodyEl.innerHTML    = getPortalPanelContent(moduleId);
-  accordion.style.display = '';
+  /* If clicking the same tab while open, close it */
+  if (panel.dataset.open === moduleId && panel.style.display !== 'none') {
+    closePortalPanel();
+    return;
+  }
+  panel.dataset.open = moduleId;
 
-  /* Smooth scroll to accordion */
-  setTimeout(() => accordion.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  bodyEl.innerHTML = getPortalPanelContent(moduleId);
+  panel.style.display = '';
 
-  /* Render any dynamic content */
+  /* Trigger slide-in animation */
+  panel.classList.remove('panel-slide-in');
+  void panel.offsetWidth; /* reflow */
+  panel.classList.add('panel-slide-in');
+
+  /* Render dynamic content after DOM is ready */
   if (moduleId === 'roster')   renderRoster();
   if (moduleId === 'settings') renderSettings();
 }
 
 function closePortalPanel() {
-  const accordion = document.getElementById('portal-accordion');
-  if (accordion) accordion.style.display = 'none';
-  document.querySelectorAll('#portal-tile-grid .dash-tile').forEach(t => t.classList.remove('tile-active'));
+  const panel = document.getElementById('portal-panel');
+  if (panel) { panel.style.display = 'none'; panel.dataset.open = ''; }
+  document.querySelectorAll('.portal-tab-btn').forEach(b => b.classList.remove('ptab-active'));
 }
 
 /* Return HTML content for each module panel */
@@ -354,19 +352,12 @@ function getPortalPanelContent(moduleId) {
             <tbody id="roster-tbody"></tbody>
           </table>
         </div>`;
-
     case 'finances':
       return `<div class="placeholder-box">Finances module coming soon.<br>Club treasury, dues tracking, and expenses will live here.</div>`;
-
     case 'inventory':
       return `<div class="placeholder-box">Inventory module coming soon.<br>Gear, merchandise, and equipment tracking will live here.</div>`;
-
-    case 'events':
-      return `<div class="placeholder-box">Use the Events page in the nav bar to view and manage events.</div>`;
-
     case 'settings':
-      return `<div id="settings-body" style="margin-top:1rem;"></div>`;
-
+      return `<div id="settings-body"></div>`;
     default:
       return `<div class="placeholder-box">Module coming soon.</div>`;
   }

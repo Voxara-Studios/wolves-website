@@ -1474,3 +1474,120 @@ body::after {
   background: var(--red-faint) !important;
   color: var(--t1) !important;
 }
+
+/* ══════════════════════════════════════
+   V12.2 — PORTAL TAB BAR + PANEL
+   ══════════════════════════════════════ */
+
+/* ── Tab bar — full width, no box, borderless ── */
+.portal-tab-bar {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 2px solid var(--border);
+  background: var(--bg1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.portal-tab-bar::-webkit-scrollbar { display: none; }
+
+/* ── Individual tab button ── */
+.portal-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: 1.1rem 2rem;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px; /* sit on top of bar border */
+  color: var(--t3);
+  font-family: 'Oswald', sans-serif;
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color .18s, border-color .18s, background .18s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.portal-tab-btn:hover {
+  color: var(--t1);
+  background: var(--bg2);
+}
+.portal-tab-btn.ptab-active {
+  color: var(--t1);
+  border-bottom-color: var(--red);
+  background: var(--bg2);
+}
+.portal-tab-btn.portal-tab-locked {
+  opacity: .38;
+  cursor: not-allowed;
+}
+.portal-tab-btn.portal-tab-locked:hover {
+  color: var(--t3);
+  background: transparent;
+}
+
+/* Tab icon */
+.ptab-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.ptab-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ptab-label { line-height: 1; }
+.ptab-lock {
+  margin-left: .3rem;
+  opacity: .5;
+}
+.ptab-lock svg {
+  width: 12px;
+  height: 12px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── Full-width panel below the tab bar ── */
+.portal-panel {
+  width: 100%;
+  border-top: none; /* tab bar bottom already acts as divider */
+  background: var(--bg0);
+  min-height: 400px;
+}
+.portal-panel-body {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 4rem;
+}
+
+/* ── Slide-in animation ── */
+@keyframes panelSlideIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.panel-slide-in {
+  animation: panelSlideIn .22s ease both;
+}
+
+/* ── Remove old portal-body padding since panel is full-width ── */
+.portal-body {
+  padding: 0;
+  max-width: 100%;
+}
+
+/* ── Settings inside panel needs no extra margin ── */
+.portal-panel-body #settings-body {
+  margin-top: 0;
+}

@@ -246,7 +246,6 @@
       <li><a onclick="showPage('page-landing')">Home</a></li>
       <li><a onclick="showPage('page-about')">About</a></li>
       <li><a onclick="showPage('page-events')">Events</a></li>
-      <li><a class="nav-link-active">Member Portal</a></li>
     </ul>
     <div class="nav-right-group">
       <span class="nav-welcome-text" id="portal-welcome-text" style="display:none;"></span>
@@ -284,6 +283,8 @@
 
   <!-- LOGGED-IN PORTAL VIEW -->
   <div id="portal-member-view" style="display:none;">
+
+    <!-- Hero -->
     <div class="portal-hero">
       <div class="portal-hero-bg"></div>
       <div class="portal-hero-content">
@@ -291,16 +292,15 @@
         <h1 class="portal-hero-title" id="portal-hero-title">Clubhouse</h1>
       </div>
     </div>
-    <div class="portal-body">
-      <div class="dash-tiles" id="portal-tile-grid"></div>
-      <div class="portal-accordion" id="portal-accordion" style="display:none;">
-        <div class="portal-accordion-header">
-          <span class="portal-accordion-title" id="portal-accordion-title"></span>
-          <button class="portal-accordion-close" onclick="closePortalPanel()">&#10005; Close</button>
-        </div>
-        <div class="portal-accordion-body" id="portal-accordion-body"></div>
-      </div>
+
+    <!-- Module tab bar — full width, no box -->
+    <div class="portal-tab-bar" id="portal-tile-grid"></div>
+
+    <!-- Divider line + full-width panel -->
+    <div class="portal-panel" id="portal-panel" style="display:none;">
+      <div class="portal-panel-body" id="portal-panel-body"></div>
     </div>
+
   </div>
 
 </div>
