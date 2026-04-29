@@ -14,6 +14,11 @@ function showPage(id) {
   const t = document.getElementById(id);
   if (t) { t.classList.add('active'); window.scrollTo(0,0); }
   setNavHomeActive(id === 'page-landing');
+  /* Clear portal button active state whenever leaving portal */
+  if (id !== 'page-portal') {
+    const portalBtn = document.getElementById('portal-nav-btn');
+    if (portalBtn) portalBtn.classList.remove('nav-btn-active');
+  }
   if (id === 'page-settings') renderSettings();
   if (id === 'page-events')   renderPublicEventsPage();
   if (id === 'page-landing')  renderLandingEvents();
@@ -262,9 +267,33 @@ function renderPortalPage() {
   }
 
   renderPortalTiles();
-  closePortalPanel();
   renderLogos();
   updateNav();
+
+  /* Light up the portal nav button while on this page */
+  const portalBtn = document.getElementById('portal-nav-btn');
+  if (portalBtn) portalBtn.classList.add('nav-btn-active');
+
+  /* Open default tab — only if not already open */
+  const panel = document.getElementById('portal-panel');
+  const alreadyOpen = panel && panel.style.display !== 'none';
+  if (!alreadyOpen) {
+    const defaultTab = CFG.club.defaultPortalTab || 'roster';
+    /* Check the member actually has access to the default tab */
+    const defaultMod = CFG.modules[defaultTab];
+    const hasAccess  = defaultMod && defaultMod.access.includes(currentUser.access);
+    if (hasAccess) {
+      openPortalPanel(defaultTab);
+    } else {
+      /* Fall back to first accessible tab */
+      const EXCLUDE = ['events', 'mainsite'];
+      const firstAccess = Object.entries(CFG.modules)
+        .sort((a,b) => a[1].order - b[1].order)
+        .filter(([id]) => !EXCLUDE.includes(id))
+        .find(([, m]) => m.access.includes(currentUser.access));
+      if (firstAccess) openPortalPanel(firstAccess[0]);
+    }
+  }
 }
 
 /* Render the module tab bar (excludes events + mainsite) */
@@ -466,6 +495,14 @@ function renderSettings() {
       ${sRow('Motto',      'si-motto',    CFG.club.motto)}
       ${sRow('Founded',    'si-founded',  CFG.club.founded)}
       ${sRow('Location',   'si-location', CFG.club.location)}
+      <div class="s-row">
+        <label class="s-label">Default Portal Tab</label>
+        <select class="s-input s-select" id="si-default-tab" style="max-width:200px;">
+          ${['roster','finances','inventory','settings'].map(t =>
+            `<option value="${t}" ${(CFG.club.defaultPortalTab||'roster')===t?'selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`
+          ).join('')}
+        </select>
+      </div>
       <div class="s-row s-row--col" style="gap:.5rem;margin-bottom:1.25rem;">
         <label class="s-label">Main Discord Button</label>
         <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
@@ -728,7 +765,8 @@ function saveSettings() {
   CFG.club.name     = g('si-name')     || CFG.club.name;
   CFG.club.motto    = g('si-motto')    || CFG.club.motto;
   CFG.club.founded  = g('si-founded')  || CFG.club.founded;
-  CFG.club.location    = g('si-location')    || CFG.club.location;
+  CFG.club.location        = g('si-location')    || CFG.club.location;
+  CFG.club.defaultPortalTab = g('si-default-tab') || CFG.club.defaultPortalTab;
   CFG.club.discordMain      = g('si-discord-main');
   CFG.club.discordMainLabel = g('si-discord-main-label') || CFG.club.discordMainLabel;
   CFG.club.discordMainColor = g('si-discord-main-color') || CFG.club.discordMainColor;
